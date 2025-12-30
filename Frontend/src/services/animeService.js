@@ -25,22 +25,3 @@ export async function createReview(animeId, rating, text) {
     });
     return res.data;
 }
-
-export async function fetchWatchlist() {
-    const res = await api.get("/watchlist/");
-    return res.data || [];
-}
-
-export async function addToWatchlist(animeId, status = "PW") {
-    const res = await api.post("/watchlist/", { anime_id: animeId, status });
-    return res.data;
-}
-
-export async function removeFromWatchlist(animeId) {
-    const res = await api.delete(`/watchlist/${animeId}/`);
-    return res.data;
-}
-
-export async function findWatchlistItem(watchlist, animeId) {
-    return watchlist?.find(item => item.anime_id === Number(animeId));
-}
