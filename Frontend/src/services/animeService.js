@@ -28,5 +28,10 @@ export async function createReview(animeId, rating, text) {
 
 export async function fetchWatchlist() {
     const res = await api.get("/watchlist/");
-    return res.data.results || [];
+    return res.data || [];
+}
+
+export async function addToWatchlist(anime_id, status= "PW") {
+    const res = await api.post("/watchlist/", {anime_id= animeId, status});
+    return res.data;
 }
