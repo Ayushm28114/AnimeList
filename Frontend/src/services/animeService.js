@@ -40,3 +40,7 @@ export async function removeFromWatchlist(animeId) {
     const res = await api.delete(`/watchlist/${animeId}/`);
     return res.data;
 }
+
+export async function findWatchlistItem(watchlist, animeId) {
+    return watchlist?.find(item => item.anime_id === Number(animeId));
+}
