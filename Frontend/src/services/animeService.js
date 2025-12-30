@@ -25,3 +25,8 @@ export async function createReview(animeId, rating, text) {
     });
     return res.data;
 }
+
+export async function fetchWatchlist() {
+    const res = await api.get("/watchlist/");
+    return res.data.results || [];
+}
