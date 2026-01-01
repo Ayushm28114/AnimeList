@@ -30,7 +30,7 @@ function AnimeDetailedPage() {
         async function fetchAnime() {
             setLoadingAnime(true);
             setError(null);
-            try 
+            try {
                 const data = await getAnimeDetails(animeId);
                 setAnime(data);
             }
