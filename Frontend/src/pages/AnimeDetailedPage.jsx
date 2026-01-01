@@ -22,6 +22,7 @@ function AnimeDetailedPage() {
     });
     const [submittingReview, setSubmittingReview] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [watchlist, setWatchlist] = useState([]);
 
     useEffect(() => {
         async function fetchAnime() {
