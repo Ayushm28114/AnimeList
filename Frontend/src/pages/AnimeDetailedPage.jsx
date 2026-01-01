@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import {getAnimeDetails, getAnimeReviews, createReview} from '../services/animeService';
 import { useAuth } from '../context/AuthContext';
 import './styler.css';
+import { getAnimeDetails, getAnimeReviews, createReview } from "../services/animeService";
 
 
 function AnimeDetailedPage() {
