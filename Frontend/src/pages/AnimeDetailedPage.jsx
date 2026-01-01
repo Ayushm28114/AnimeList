@@ -43,7 +43,7 @@ function AnimeDetailedPage() {
             }
         }
 
-        async function fetchReviews() 
+        async function fetchReviews() {
             setLoadingReview(true);
             setError(null);
             try {
