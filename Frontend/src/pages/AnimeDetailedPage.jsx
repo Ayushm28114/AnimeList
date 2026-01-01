@@ -26,7 +26,7 @@ function AnimeDetailedPage() {
     const [watchlistLoading, setWatchlistLoading] = useState(true);     
     const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);    
 
-    useEffect(() => {
+    useEf) => {
         async function fetchAnime() {
             setLoadingAnime(true);
             setError(null);
