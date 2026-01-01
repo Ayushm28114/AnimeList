@@ -31,7 +31,7 @@ function AnimeDetailedPage() {
             setLoadingAnime(true);
             setError(null);
             try {
-                const data = await getAnimeDetails(animeId);
+                const data = await getAnimeDetails(aniId);
                 setAnime(data);
             }
             catch(err){
