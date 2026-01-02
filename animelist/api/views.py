@@ -81,7 +81,7 @@ class AnimeProxyView(APIView):
                 data = resp.json()
                 cache.set(cache_key, data, timeout=60*5)
 
-            return Response(data);;;;;;
+            return Response(data);;;;;
         
 
 class RegisterView(viewsets.ModelViewSet):
