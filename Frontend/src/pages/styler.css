@@ -548,7 +548,7 @@
 }
 
 /* Responsive Design for Register Page */
-@media (max-width: 768px) {
+@media (max-width: 768px) 
     .register-wrapper {
         padding: 2rem 1.5rem;
         max-width: 90%;
