@@ -35,9 +35,9 @@ function AnimeDetailedPage() {
                 return;
             }
             setWatchlistLoading(true);
-            try{
-                const w1 = await fetchWatchlist();
-            }
+            // try{
+            //     const w1 = await fetchWatchlist();
+            // }
         }
     })
 
