@@ -27,19 +27,7 @@ function AnimeDetailedPage() {
     const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);    
 
     // Watchlist useEffect below this ****
-    useEffect(() => {
-        async function loadWatchlist() {
-            if (!isAuthenticated) {
-                setWatchlist([]);
-                setWatchlistLoading(false);
-                return;
-            }
-            setWatchlistLoading(true);
-            try{
-                const w1 = await fetchWatchlist();
-            }
-        }
-    })
+    
 
     useEffect(() => {
         async function fetchAnime() {
