@@ -348,10 +348,30 @@ const handleRemoveFromWatchlist = async (itemId) => {
                                 <span className="share-icon">📤</span>
                                 Share
                             </button>
-                            <button className="favorite-btn">
-                                <span className="favorite-icon">❤️</span>
-                                Add to Favorites
-                            </button>
+
+                            {/* WATCHLIST BUTTON */}
+
+                            {watchlistLoading ? (
+                                <button disabled className="favorite-btn">
+                                    ⏳ Loading...
+                                </button>
+                            ) : currentWatchItem ? (
+                                <button
+                                    className="favorite-btn"
+                                    onClick={() => handleRemoveFromWatchlist(currentWatchItem.id)}
+                                    disabled={watchlistActionLoading}
+                                >
+                                    ❌ Remove from Watchlist ({currentWatchItem.status})
+                                </button>
+                            ) : (
+                                <button
+                                    className="favorite-btn"
+                                    onClick={() => handleAddToWatchlist("PW")}
+                                    disabled={watchlistActionLoading}
+                                >
+                                    ❤️ Add to Watchlist
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
