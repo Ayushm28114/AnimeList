@@ -27,7 +27,53 @@ function AnimeDetailedPage() {
     const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);    
 
     // Watchlist useEffect below this ****
-    
+    useEffect(() => {
+  async function loadWatchlist() {
+    if (!isAuthenticated) {
+      setWatchlist([]); setWatchlistLoading(false); return;
+    }
+    setWatchlistLoading(true);
+    try {
+      const wl = await fetchWatchlist();
+      // if backend returns {results: [...] } adjust accordingly
+      setWatchlist(Array.isArray(wl) ? wl : (wl.results || []));
+    } catch (err) {
+      console.error("Failed to load watchlist", err);
+    } finally {
+      setWatchlistLoading(false);
+    }
+  }
+  loadWatchlist();
+}, [isAuthenticated]);
+
+// helper to check if current anime is in watchlist
+const currentWatchItem = findWatchlistItem(watchlist, animeId);
+
+// add/remove handlers
+const handleAddToWatchlist = async (status = "PTW") => {
+  if (!isAuthenticated) { alert("Login to add to watchlist"); return; }
+  setWatchlistActionLoading(true);
+  try {
+    const newItem = await addToWatchlist(animeId, status);
+    // keep UI in sync
+    setWatchlist(prev => [ ...(prev||[]), newItem ]);
+  } catch (err) {
+    console.error(err);
+    alert("Could not add to watchlist");
+  } finally { setWatchlistActionLoading(false); }
+};
+
+const handleRemoveFromWatchlist = async (itemId) => {
+  if (!isAuthenticated) { alert("Login to remove from watchlist"); return; }
+  setWatchlistActionLoading(true);
+  try {
+    await removeFromWatchlist(itemId);
+    setWatchlist(prev => prev.filter(i => i.id !== itemId));
+  } catch (err) {
+    console.error(err);
+    alert("Could not remove from watchlist");
+  } finally { setWatchlistActionLoading(false); }
+};    
 
     useEffect(() => {
         async function fetchAnime() {
