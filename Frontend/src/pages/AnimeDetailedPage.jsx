@@ -495,7 +495,7 @@ const handleRemoveFromWatchlist = async (itemId) => {
                                         name="text" 
                                         rows="6"
                                         value={reviewForm.text}
-                                        onChange={handleReviewChange};
+                                        onChange={handleReviewChange};;
                                         className="review-textarea"
                                         placeholder="Share your thoughts about this anime..."
                                     />
