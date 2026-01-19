@@ -18,3 +18,8 @@ export async function removeFromWatchlist(animeId) {
 export async function findWatchlistItem(watchlist, animeId) {
     return watchlist?.find(item => item.anime_id === Number(animeId));
 }
+
+export async function updateWatchlistItem(itemId, data) {
+  const res = await api.patch(`/watchlist/${itemId}/`, data);
+  return res.data;
+}
