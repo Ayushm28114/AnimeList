@@ -56,7 +56,12 @@ const handleAddToWatchlist = async (status = "PTW") => {
   try {
     const newItem = await addToWatchlist(animeId, status);
     // keep UI in sync
-    setWatchlist(prev => [ ...(prev||[]), newItem ]);
+    setWatchlist(prev =>
+        prev.some(i => i.anime_id === animeId)
+            ? prev
+            : [...prev, newItem]
+    );
+
   } catch (err) {
     console.error(err);
     alert("Could not add to watchlist");
