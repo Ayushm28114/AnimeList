@@ -40,12 +40,12 @@ export default function ProfilePage() {
         <h3>Your Watchlist</h3>
         {loading ? <p>Loading...</p> : (
           watchlist.length === 0 ? <p>No items in watchlist.</p> :
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul>
             {watchlist.map(item => (
-              <li key={item.id} style={{ marginBottom: "0.5rem" }}>
+              <li key={item.id}>
                 <Link to={`/anime/${item.anime_id}`}>Anime ID: {item.anime_id}</Link>
-                <span style={{ marginLeft: "0.5rem" }}>Status: {item.status}</span>
-                <button style={{ marginLeft: "1rem" }} onClick={() => handleRemove(item.id)}>Remove</button>
+                <span>Status: {item.status}</span>
+                <button onClick={() => handleRemove(item.id)}>Remove</button>
               </li>
             ))}
           </ul>
