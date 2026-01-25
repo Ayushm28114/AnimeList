@@ -49,7 +49,7 @@ function AnimeDetailedPage() {
 // helper to check if current anime is in watchlist
 const currentWatchItem = findWatchlistItem(watchlist, animeId);
 console.log("WATCHLIST:", watchlist);
-console.log("CURRENT WATCH ITEM:", currentWatchItem);
+console.log("CURRENT WATCH ITEM:", currentWatchItem);byudjektuni
 
 
 // add/remove handlers
