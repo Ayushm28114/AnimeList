@@ -22,4 +22,4 @@ export function findWatchlistItem(watchlist, animeId) {
 export async function updateWatchlistItem(itemId, data) {
   const res = await api.patch(`/watchlist/${itemId}/`, data);
   return res.data;
-}hel
+}hell
