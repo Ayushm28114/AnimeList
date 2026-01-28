@@ -48,9 +48,6 @@ function AnimeDetailedPage() {
 
 // helper to check if current anime is in watchlist
 const currentWatchItem = findWatchlistItem(watchlist, animeId);
-console.log("WATCHLIST:", watchlist);
-console.log("CURRENT WATCH ITEM:", currentWatchItem);
-
 
 // add/remove handlers
 const handleAddToWatchlist = async (status = "PTW") => {
@@ -244,10 +241,8 @@ const handleRemoveFromWatchlist = async (itemId) => {
 
     return (
         <div className="anime-detail-page">
-            
             {/* Hero Section */}
             <div className="anime-hero">
-                
                 <div className="anime-hero-bg" style={{backgroundImage: `url(${img})`}}></div>
                 <div className="anime-hero-content">
                     <div className="anime-poster">
