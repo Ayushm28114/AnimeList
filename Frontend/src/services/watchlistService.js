@@ -15,8 +15,8 @@ export async function removeFromWatchlist(animeId) {
     return res.data;
 }
 
-export function findWatchlistItem(watchlist, animeId) {
-    return watchlist?.find(item => Number(item.anime_id) === Number(animeId));
+export async function findWatchlistItem(watchlist, animeId) {
+    return watchlist?.find(item => item.anime_id === Number(animeId));
 }
 
 export async function updateWatchlistItem(itemId, data) {
