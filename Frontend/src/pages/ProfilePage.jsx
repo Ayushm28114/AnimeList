@@ -10,6 +10,10 @@ export default function ProfilePage() {
       <h2>Profile</h2>
       <p>Username: {user?.username}</p>
 
+      <section>
+        <h3>Watchlist</h3>
+        <p>Watchlist feature will be available in a future update.</p>
+      </section>
     </div>
   );
 }

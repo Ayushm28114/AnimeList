@@ -1,3 +1,7 @@
+// Watchlist service temporarily disabled 
+// Will be re-enabled post-deployment
+
+
 import api from "./api";
 
 export async function fetchWatchlist() {

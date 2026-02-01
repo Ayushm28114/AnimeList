@@ -9,6 +9,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import PermissionDenied
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self,request,view,obj):
@@ -18,26 +19,28 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsOwnerOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(user= self.request.user)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         qs = Review.objects.all()
         anime_id = self.request.query_params.get('anime_id')
         user_id = self.request.query_params.get('user_id')
-        comment = self.request.query_params.get('comment')
+        text = self.request.query_params.get('text')
 
         if anime_id:
-            qs= qs.filter(anime_id=anime_id)
+            qs = qs.filter(anime_id=anime_id)
         if user_id:
             qs = qs.filter(user_id=user_id)
-        if comment:
-            qs = qs.filter(comment__contains=comment)
+        if text:
+            qs = qs.filter(text__icontains=text)
+
         return qs
+
+    def perform_create(self, serializer):
+        if not self.request.user or not self.request.user.is_authenticated:
+            raise PermissionDenied("Authentication required to post a review")
+        serializer.save(user=self.request.user)
 
 class WatchlistViewSet(viewsets.ModelViewSet):
     queryset = Watchlist.objects.all()
