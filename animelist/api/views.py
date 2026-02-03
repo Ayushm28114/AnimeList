@@ -1,3 +1,4 @@
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -19,8 +20,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = ReviewSerializer
 
     def get_queryset(self):
         qs = Review.objects.all()
@@ -38,8 +40,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        if not self.request.user or not self.request.user.is_authenticated:
-            raise PermissionDenied("Authentication required to post a review")
+        print("AUTH HEADER:", self.request.headers.get("Authorization"))
+        print("USER:", self.request.user)
         serializer.save(user=self.request.user)
 
 class WatchlistViewSet(viewsets.ModelViewSet):
