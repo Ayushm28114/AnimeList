@@ -17,15 +17,11 @@ export async function getAnimeReviews(animeId) {
     return res.data.results || [];
 }
 
-export async function createReview(animeId, rating, comment) {
+export async function createReview(animeId, rating, text) {
     const res = await api.post("/reviews/", {
         anime_id : animeId,
         rating,
-        comment,
+        text,
     });
     return res.data;
-}
-
-export async function deleteReview(reviewId) {
-    await api.delete(`/reviews/${reviewId}/`);
 }
