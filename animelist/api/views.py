@@ -61,6 +61,7 @@ class AnimeProxyView(APIView):
     permission_classes = [permissions.AllowAny]
     JIKAN_BASE = "https://api.jikan.moe/v4"
 
+
     def get(self, request, anime_id=None):
         if anime_id:
             cache_key = f"anime_details_{anime_id}"
