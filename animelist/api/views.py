@@ -1,5 +1,4 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .authentication import CsrfExemptJWTAuthentication
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -21,9 +20,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    authentication_classes = [CsrfExemptJWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = ReviewSerializer
 
     def get_queryset(self):
         qs = Review.objects.all()
