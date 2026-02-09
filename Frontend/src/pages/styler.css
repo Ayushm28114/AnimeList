@@ -1374,6 +1374,36 @@
     transform: translateY(-1px);
 }
 
+.delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 77, 77, 0.15);
+    border: 1px solid rgba(255, 77, 77, 0.4);
+    border-radius: 1rem;
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: rgba(255, 77, 77, 0.25);
+    border-color: rgba(255, 77, 77, 0.7);
+    transform: translateY(-1px);
+}
+
+.delete-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.delete-icon {
+    font-size: 1rem;
+}
+
 .helpful-icon {
     font-size: 1rem;
 }

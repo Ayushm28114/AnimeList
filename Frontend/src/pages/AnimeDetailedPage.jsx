@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {getAnimeDetails, getAnimeReviews, createReview} from '../services/animeService';
+import {getAnimeDetails, getAnimeReviews, createReview, deleteReview} from '../services/animeService';
 import { useAuth } from '../context/AuthContext';
 import './styler.css';
 // import { fetchWatchlist, addToWatchlist, removeFromWatchlist, findWatchlistItem } from "../services/watchlistService";
@@ -9,6 +9,7 @@ import './styler.css';
 function AnimeDetailedPage() {
     const {id} = useParams();
     const animeId = Number(id);
+    const { user } = useAuth();
     const { isAuthenticated } = useAuth();
 
     const [anime, setAnime] = useState(null);
@@ -21,6 +22,7 @@ function AnimeDetailedPage() {
         text: ""
     });
     const [submittingReview, setSubmittingReview] = useState(false);
+    const [deletingReview, setDeletingReview] = useState(null);
     const [showScrollTop, setShowScrollTop] = useState(false);
     // const [watchlist, setWatchlist] = useState([]);
     // const [watchlistLoading, setWatchlistLoading] = useState(true);     
@@ -156,6 +158,23 @@ function AnimeDetailedPage() {
         }
         finally {
             setSubmittingReview(false);
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        if (!window.confirm("Are you sure you want to delete this review?")) {
+            return;
+        }
+        setDeletingReview(reviewId);
+        try {
+            await deleteReview(reviewId);
+            const updated = await getAnimeReviews(animeId);
+            setReviews(updated);
+        } catch (err) {
+            console.log(err);
+            alert("Failed to delete review. Please try again.");
+        } finally {
+            setDeletingReview(null);
         }
     };
 
@@ -435,7 +454,7 @@ function AnimeDetailedPage() {
                                             </div>
                                         </div>
                                         <div className="review-body">
-                                            <p className="review-text">{rev.text || "No written review."}</p>
+                                            <p className="review-text">{rev.comment || "No written review."}</p>
                                         </div>
                                         <div className="review-footer">
                                             <div className="review-actions">
@@ -443,6 +462,17 @@ function AnimeDetailedPage() {
                                                     <span className="helpful-icon">👍</span>
                                                     <span>Helpful</span>
                                                 </button>
+                                                {/* Delete button - only show for review owner */}
+                                                {user && (user.username === rev.user?.username || user.id === rev.user_id || user.id === rev.user?.id) && (
+                                                    <button 
+                                                        className="delete-btn"
+                                                        onClick={() => handleDeleteReview(rev.id)}
+                                                        disabled={deletingReview === rev.id}
+                                                    >
+                                                        <span className="delete-icon">🗑️</span>
+                                                        <span>{deletingReview === rev.id ? "Deleting..." : "Delete"}</span>
+                                                    </button>
+                                                )}
                                             </div>
                                             <span className="review-date">
                                                 {new Date(rev.created_at).toLocaleDateString('en-US', {
