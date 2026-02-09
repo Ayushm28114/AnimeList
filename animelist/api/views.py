@@ -11,7 +11,6 @@ from rest_framework.views import APIView
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self,request,view,obj):
@@ -22,7 +21,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]    
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ReviewSerializer
 
     def get_queryset(self):

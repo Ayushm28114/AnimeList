@@ -30,11 +30,3 @@ export async function deleteReview(reviewId) {
     const res = await api.delete(`/reviews/${reviewId}/`);
     return res.data;
 }
-
-export async function updateReview(reviewId, rating, comment) {
-    const res = await api.patch(`/reviews/${reviewId}/`, {
-        rating,
-        comment,
-    });
-    return res.data;
-}

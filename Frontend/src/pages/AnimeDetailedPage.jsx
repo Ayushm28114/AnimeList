@@ -9,8 +9,7 @@ import './styler.css';
 function AnimeDetailedPage() {
     const {id} = useParams();
     const animeId = Number(id);
-    const { user } = useAuth();
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
 
     const [anime, setAnime] = useState(null);
     const [reviews, setReviews] = useState([]);
@@ -463,7 +462,12 @@ function AnimeDetailedPage() {
                                                     <span>Helpful</span>
                                                 </button>
                                                 {/* Delete button - only show for review owner */}
-                                                {user && (user.username === rev.user?.username || user.id === rev.user_id || user.id === rev.user?.id) && (
+                                                {user && (
+                                                    user.username === rev.user?.username || 
+                                                    user.username === rev.username ||
+                                                    user.id === rev.user_id || 
+                                                    user.id === rev.user?.id
+                                                ) && (
                                                     <button 
                                                         className="delete-btn"
                                                         onClick={() => handleDeleteReview(rev.id)}

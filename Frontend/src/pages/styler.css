@@ -1374,6 +1374,11 @@
     transform: translateY(-1px);
 }
 
+.helpful-icon {
+    font-size: 1rem;
+}
+
+/* Delete Button Styles */
 .delete-btn {
     display: flex;
     align-items: center;
@@ -1401,10 +1406,6 @@
 }
 
 .delete-icon {
-    font-size: 1rem;
-}
-
-.helpful-icon {
     font-size: 1rem;
 }
 
