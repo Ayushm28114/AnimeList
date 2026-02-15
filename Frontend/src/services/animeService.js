@@ -8,14 +8,14 @@ export async function searchAnime(query) {
   return res.data.data || [];
 }
 
-export async function getAnimeDetails(id) {
-  const res = await publicApi.get(`/anime/${id}/`);
+export async function getAnimeDetails(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/`);
   return res.data.data;
 }
 
-export async function getAnimeReviews(id) {
+export async function getAnimeReviews(animeId) {
   const res = await publicApi.get("/reviews/", {
-    params: { anime_id: id },
+    params: { anime_id: animeId },
   });
   return res.data.results || [];
 }
@@ -29,6 +29,22 @@ export async function createReview(animeId, rating, comment) {
   return res.data;
 }
 
-export async function deleteReview(id) {
-  return api.delete(`/reviews/${id}/`);
+export async function deleteReview(reviewId) {
+  const res = await api.delete(`/reviews/${reviewId}/`);
+  return res.data;
+}
+
+export async function getAnimeCharacters(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/characters/`);
+  return res.data.data || [];
+}
+
+export async function getAnimeStaff(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/staff/`);
+  return res.data.data || [];
+}
+
+export async function getAnimeRecommendations(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/recommendations/`);
+  return res.data.data || [];
 }
