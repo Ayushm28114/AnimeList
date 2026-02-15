@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { searchAnime } from "../services/animeService";
 import { AnimeCardContainer } from "../Components/AnimeCard";
+import { useSearch } from "../hooks/useSearch";
 // import Posters from "../Components/Posters";
 import "../Components/style.css";
 
 export default function HomePage() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const { 
+    query, 
+    setQuery, 
+    results, 
+    setResults, 
+    hasSearched, 
+    setHasSearched 
+  } = useSearch();
+  
+  const [inputValue, setInputValue] = useState(query);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Sync input with query from context when component mounts
+  useEffect(() => {
+    setInputValue(query);
+  }, [query]);
+
   const handleSearch = async (e) => {
     e && e.preventDefault();
-    if (!query.trim()) return;
+    if (!inputValue.trim()) return;
     setLoading(true);
     setError(null);
+    setQuery(inputValue);
+    setHasSearched(true);
     try {
-      const data = await searchAnime(query);
+      const data = await searchAnime(inputValue);
       setResults(data || []);
     } catch (err) {
       console.error(err);
@@ -27,7 +43,9 @@ export default function HomePage() {
   };
 
   const handleCategoryClick = async (category) => {
+    setInputValue(category);
     setQuery(category);
+    setHasSearched(true);
     setLoading(true);
     setError(null);
     try {
@@ -143,8 +161,8 @@ export default function HomePage() {
             className="search-input"
             type="text"
             placeholder="Type anime title (e.g., Naruto, One Piece, Attack on Titan)..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
           <button className="search-button" type="submit">
             Search
@@ -159,12 +177,12 @@ export default function HomePage() {
       {results.length > 0 && (
         <AnimeCardContainer 
           animeList={results} 
-          title={`Search Results (${results.length} found)`}
+          title={`Search Results for "${query}" (${results.length} found)`}
         />
       )}
 
       {/* No Results Message */}
-      {results.length === 0 && !loading && query && (
+      {hasSearched && results.length === 0 && !loading && (
         <div className="no-results">
           No anime found for "{query}". Try searching for popular titles like "Naruto" or "One Piece"! 🎌
         </div>

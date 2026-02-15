@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {getAnimeDetails, getAnimeReviews, createReview, deleteReview} from '../services/animeService';
+import {getAnimeDetails, getAnimeReviews, createReview, deleteReview, getAnimeCharacters, getAnimeStaff, getAnimeRecommendations} from '../services/animeService';
 import { useAuth } from '../context/AuthContext';
 import './styler.css';
 // import { fetchWatchlist, addToWatchlist, removeFromWatchlist, findWatchlistItem } from "../services/watchlistService";
@@ -13,8 +13,14 @@ function AnimeDetailedPage() {
 
     const [anime, setAnime] = useState(null);
     const [reviews, setReviews] = useState([]);
+    const [characters, setCharacters] = useState([]);
+    const [staff, setStaff] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
     const [loadingAnime, setLoadingAnime] = useState(true);
     const [loadingReview, setLoadingReview] = useState(true);
+    const [loadingCharacters, setLoadingCharacters] = useState(true);
+    const [loadingStaff, setLoadingStaff] = useState(true);
+    const [loadingRecommendations, setLoadingRecommendations] = useState(true);
     const [error, setError] = useState(null);
     const [reviewForm, setReviewForm] = useState({
         ratings: "",
@@ -23,6 +29,7 @@ function AnimeDetailedPage() {
     const [submittingReview, setSubmittingReview] = useState(false);
     const [deletingReview, setDeletingReview] = useState(null);
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [activeTab, setActiveTab] = useState('characters');
     // const [watchlist, setWatchlist] = useState([]);
     // const [watchlistLoading, setWatchlistLoading] = useState(true);     
     // const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);    
@@ -113,8 +120,54 @@ function AnimeDetailedPage() {
                 setLoadingReview(false);
             }
         }
+
+        async function fetchCharacters() {
+            setLoadingCharacters(true);
+            try {
+                const data = await getAnimeCharacters(animeId);
+                setCharacters(data);
+            }
+            catch(err) {
+                console.log(err);
+            }
+            finally {
+                setLoadingCharacters(false);
+            }
+        }
+
+        async function fetchStaff() {
+            setLoadingStaff(true);
+            try {
+                const data = await getAnimeStaff(animeId);
+                setStaff(data);
+            }
+            catch(err) {
+                console.log(err);
+            }
+            finally {
+                setLoadingStaff(false);
+            }
+        }
+
+        async function fetchRecommendations() {
+            setLoadingRecommendations(true);
+            try {
+                const data = await getAnimeRecommendations(animeId);
+                setRecommendations(data);
+            }
+            catch(err) {
+                console.log(err);
+            }
+            finally {
+                setLoadingRecommendations(false);
+            }
+        }
+
         fetchAnime();
         fetchReviews();
+        fetchCharacters();
+        fetchStaff();
+        fetchRecommendations();
     },[animeId]);
 
     // Scroll to top functionality
@@ -414,6 +467,168 @@ function AnimeDetailedPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Characters & Staff Section */}
+            <section className="characters-section">
+                <div className="section-container">
+                    <div className="tabs-container">
+                        <button 
+                            className={`tab-btn ${activeTab === 'characters' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('characters')}
+                        >
+                            <span className="tab-icon">👥</span>
+                            Characters & Voice Actors
+                        </button>
+                        <button 
+                            className={`tab-btn ${activeTab === 'staff' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('staff')}
+                        >
+                            <span className="tab-icon">🎬</span>
+                            Staff
+                        </button>
+                    </div>
+
+                    {activeTab === 'characters' && (
+                        <div className="characters-content">
+                            {loadingCharacters ? (
+                                <div className="loading-mini">
+                                    <div className="mini-spinner"></div>
+                                    <p>Loading characters...</p>
+                                </div>
+                            ) : characters.length === 0 ? (
+                                <div className="no-data">
+                                    <span className="no-data-icon">😢</span>
+                                    <p>No character information available.</p>
+                                </div>
+                            ) : (
+                                <div className="characters-grid">
+                                    {characters.slice(0, 12).map((char, index) => (
+                                        <div key={index} className="character-card">
+                                            <div className="character-info">
+                                                <div className="character-image-container">
+                                                    <img 
+                                                        src={char.character?.images?.jpg?.image_url || '/placeholder.png'}
+                                                        alt={char.character?.name}
+                                                        className="character-image"
+                                                    />
+                                                    <span className={`role-badge ${char.role?.toLowerCase()}`}>
+                                                        {char.role}
+                                                    </span>
+                                                </div>
+                                                <div className="character-details">
+                                                    <h4 className="character-name">{char.character?.name}</h4>
+                                                </div>
+                                            </div>
+                                            {char.voice_actors && char.voice_actors.length > 0 && (
+                                                <div className="voice-actor-info">
+                                                    <div className="va-connector">
+                                                        <span className="va-label">🎤 VA</span>
+                                                    </div>
+                                                    <div className="va-image-container">
+                                                        <img 
+                                                            src={char.voice_actors[0]?.person?.images?.jpg?.image_url || '/placeholder.png'}
+                                                            alt={char.voice_actors[0]?.person?.name}
+                                                            className="va-image"
+                                                        />
+                                                    </div>
+                                                    <div className="va-details">
+                                                        <span className="va-name">{char.voice_actors[0]?.person?.name}</span>
+                                                        <span className="va-language">{char.voice_actors[0]?.language}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'staff' && (
+                        <div className="staff-content">
+                            {loadingStaff ? (
+                                <div className="loading-mini">
+                                    <div className="mini-spinner"></div>
+                                    <p>Loading staff...</p>
+                                </div>
+                            ) : staff.length === 0 ? (
+                                <div className="no-data">
+                                    <span className="no-data-icon">😢</span>
+                                    <p>No staff information available.</p>
+                                </div>
+                            ) : (
+                                <div className="staff-grid">
+                                    {staff.slice(0, 12).map((member, index) => (
+                                        <div key={index} className="staff-card">
+                                            <div className="staff-image-container">
+                                                <img 
+                                                    src={member.person?.images?.jpg?.image_url || '/placeholder.png'}
+                                                    alt={member.person?.name}
+                                                    className="staff-image"
+                                                />
+                                            </div>
+                                            <div className="staff-details">
+                                                <h4 className="staff-name">{member.person?.name}</h4>
+                                                <div className="staff-positions">
+                                                    {member.positions?.slice(0, 2).map((pos, idx) => (
+                                                        <span key={idx} className="position-tag">{pos}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Recommendations Section */}
+            <section className="recommendations-section">
+                <div className="section-container">
+                    <h2 className="section-title">
+                        <span className="section-icon">✨</span>
+                        You Might Also Like
+                    </h2>
+                    {loadingRecommendations ? (
+                        <div className="loading-mini">
+                            <div className="mini-spinner"></div>
+                            <p>Loading recommendations...</p>
+                        </div>
+                    ) : recommendations.length === 0 ? (
+                        <div className="no-data">
+                            <span className="no-data-icon">🔍</span>
+                            <p>No recommendations available for this anime.</p>
+                        </div>
+                    ) : (
+                        <div className="recommendations-grid">
+                            {recommendations.slice(0, 8).map((rec, index) => (
+                                <Link 
+                                    to={`/anime/${rec.entry?.mal_id}`} 
+                                    key={index} 
+                                    className="recommendation-card"
+                                >
+                                    <div className="rec-image-container">
+                                        <img 
+                                            src={rec.entry?.images?.jpg?.image_url || '/placeholder.png'}
+                                            alt={rec.entry?.title}
+                                            className="rec-image"
+                                        />
+                                        <div className="rec-overlay">
+                                            <span className="rec-votes">👍 {rec.votes} votes</span>
+                                        </div>
+                                    </div>
+                                    <div className="rec-details">
+                                        <h4 className="rec-title">{rec.entry?.title}</h4>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
+
             {/* Reviews Section */}
             <section className="reviews-section">
                 <div className="section-container">

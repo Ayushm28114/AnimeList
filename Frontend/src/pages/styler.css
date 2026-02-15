@@ -1819,3 +1819,416 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ================================
+   Characters & Staff Section
+   ================================ */
+.characters-section {
+    padding: 3rem 0;
+    background: linear-gradient(180deg, rgba(10, 10, 46, 0.3) 0%, rgba(22, 33, 62, 0.3) 100%);
+}
+
+.tabs-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 30px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(201, 240, 61, 0.2));
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+.loading-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #fff;
+    gap: 1rem;
+}
+
+.no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.6);
+    gap: 1rem;
+}
+
+.no-data-icon {
+    font-size: 3rem;
+}
+
+/* Characters Grid */
+.characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.character-card {
+    background: linear-gradient(135deg, rgba(29, 28, 57, 0.8), rgba(42, 28, 24, 0.8));
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.character-card:hover {
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.character-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.character-image-container {
+    position: relative;
+    width: 80px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.character-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.role-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.2rem;
+    font-size: 0.65rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+}
+
+.role-badge.main {
+    background: linear-gradient(135deg, #ffd700, #c9f03d);
+    color: #000;
+}
+
+.role-badge.supporting {
+    background: linear-gradient(135deg, #4a90d9, #67b8d9);
+}
+
+.character-details {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.character-name {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Voice Actor Info */
+.voice-actor-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.va-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.va-label {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.va-image-container {
+    width: 80px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.va-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.va-details {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.va-name {
+    display: block;
+    color: #c9f03d;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.va-language {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    margin-top: 0.2rem;
+}
+
+/* Staff Grid */
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.staff-card {
+    background: linear-gradient(135deg, rgba(29, 28, 57, 0.8), rgba(42, 28, 24, 0.8));
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.staff-card:hover {
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.staff-image-container {
+    width: 100px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+}
+
+.staff-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.staff-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.staff-name {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.staff-positions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    justify-content: center;
+}
+
+.position-tag {
+    background: rgba(255, 215, 0, 0.15);
+    color: #c9f03d;
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+}
+
+/* ================================
+   Recommendations Section
+   ================================ */
+.recommendations-section {
+    padding: 3rem 0;
+    background: linear-gradient(180deg, rgba(22, 33, 62, 0.3) 0%, rgba(10, 10, 46, 0.5) 100%);
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.recommendation-card {
+    background: linear-gradient(135deg, rgba(29, 28, 57, 0.9), rgba(42, 28, 24, 0.9));
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.recommendation-card:hover {
+    border-color: rgba(255, 215, 0, 0.6);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.rec-image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+}
+
+.rec-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover .rec-image {
+    transform: scale(1.05);
+}
+
+.rec-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.8rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    display: flex;
+    justify-content: flex-end;
+}
+
+.rec-votes {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    padding: 0.3rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.rec-details {
+    padding: 1rem;
+}
+
+.rec-title {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive styles for new sections */
+@media (max-width: 1200px) {
+    .recommendations-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .characters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .tabs-container {
+        justify-content: center;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 140px;
+    }
+    
+    .characters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .staff-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .rec-title {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .staff-grid {
+        grid-template-columns: 1fr;
+    }
+}

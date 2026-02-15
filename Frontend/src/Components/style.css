@@ -1142,20 +1142,22 @@
 }
 
 #search-results-container {
-    width: 100vw;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto 3rem;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 3rem;
-    padding: 0 2rem;
+    padding: 0 1rem;
+    gap: 1rem;
 }
 
 .search-card {
     height: auto;
-    width: 22vw;
-    min-width: 280px;
-    max-width: 380px;
-    margin: 1rem;
+    width: calc(25% - 1rem);
+    min-width: 220px;
+    max-width: 320px;
+    margin: 0.5rem;
     border-radius: 12px;
     background: linear-gradient(135deg, #2a1f3d 0%, #1f1b3a 100%);
     display: flex;
@@ -1255,6 +1257,18 @@
 }
 
 /* Responsive Design for Search Cards */
+@media (max-width: 1200px) {
+    .search-card {
+        width: calc(33.33% - 1rem);
+    }
+}
+
+@media (max-width: 900px) {
+    .search-card {
+        width: calc(50% - 1rem);
+    }
+}
+
 @media (max-width: 768px) {
     #search-results-container {
         padding: 0 1rem;

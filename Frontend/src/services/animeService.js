@@ -30,3 +30,18 @@ export async function deleteReview(reviewId) {
     const res = await api.delete(`/reviews/${reviewId}/`);
     return res.data;
 }
+
+export async function getAnimeCharacters(animeId) {
+    const res = await api.get(`/anime/${animeId}/characters/`);
+    return res.data.data || [];
+}
+
+export async function getAnimeStaff(animeId) {
+    const res = await api.get(`/anime/${animeId}/staff/`);
+    return res.data.data || [];
+}
+
+export async function getAnimeRecommendations(animeId) {
+    const res = await api.get(`/anime/${animeId}/recommendations/`);
+    return res.data.data || [];
+}

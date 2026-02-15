@@ -88,6 +88,54 @@ class AnimeProxyView(APIView):
                 cache.set(cache_key, data, timeout=60*5)
 
             return Response(data)
+
+
+class AnimeCharactersView(APIView):
+    """Fetch characters and voice actors for an anime"""
+    permission_classes = [permissions.AllowAny]
+    JIKAN_BASE = "https://api.jikan.moe/v4"
+
+    def get(self, request, anime_id):
+        cache_key = f"anime_characters_{anime_id}"
+        data = cache.get(cache_key)
+        if data is None:
+            url = f"{self.JIKAN_BASE}/anime/{anime_id}/characters"
+            resp = requests.get(url)
+            data = resp.json()
+            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+        return Response(data)
+
+
+class AnimeStaffView(APIView):
+    """Fetch staff members for an anime"""
+    permission_classes = [permissions.AllowAny]
+    JIKAN_BASE = "https://api.jikan.moe/v4"
+
+    def get(self, request, anime_id):
+        cache_key = f"anime_staff_{anime_id}"
+        data = cache.get(cache_key)
+        if data is None:
+            url = f"{self.JIKAN_BASE}/anime/{anime_id}/staff"
+            resp = requests.get(url)
+            data = resp.json()
+            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+        return Response(data)
+
+
+class AnimeRecommendationsView(APIView):
+    """Fetch recommendations for an anime"""
+    permission_classes = [permissions.AllowAny]
+    JIKAN_BASE = "https://api.jikan.moe/v4"
+
+    def get(self, request, anime_id):
+        cache_key = f"anime_recommendations_{anime_id}"
+        data = cache.get(cache_key)
+        if data is None:
+            url = f"{self.JIKAN_BASE}/anime/{anime_id}/recommendations"
+            resp = requests.get(url)
+            data = resp.json()
+            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+        return Response(data)
         
 
 class RegisterView(viewsets.ModelViewSet):
