@@ -1,7 +1,9 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {getAnimeDetails, getAnimeReviews, createReview, deleteReview, getAnimeCharacters, getAnimeStaff, getAnimeRecommendations} from '../services/animeService';
 import { useAuth } from '../context/AuthContext';
+import SectionLoader from '../Components/SectionLoader';
+import SectionError from '../Components/SectionError';
 import './styler.css';
 // import { fetchWatchlist, addToWatchlist, removeFromWatchlist, findWatchlistItem } from "../services/watchlistService";
 
@@ -10,18 +12,31 @@ function AnimeDetailedPage() {
     const {id} = useParams();
     const animeId = Number(id);
     const { user, isAuthenticated } = useAuth();
-
+    
+    // Ref to track component mount state (prevents memory leaks)
+    const isMountedRef = useRef(true);
+    
+    // Independent state for each section
     const [anime, setAnime] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [characters, setCharacters] = useState([]);
     const [staff, setStaff] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
+    
+    // Independent loading states
     const [loadingAnime, setLoadingAnime] = useState(true);
     const [loadingReview, setLoadingReview] = useState(true);
     const [loadingCharacters, setLoadingCharacters] = useState(true);
     const [loadingStaff, setLoadingStaff] = useState(true);
     const [loadingRecommendations, setLoadingRecommendations] = useState(true);
-    const [error, setError] = useState(null);
+    
+    // Independent error states for each section
+    const [animeError, setAnimeError] = useState(null);
+    const [reviewsError, setReviewsError] = useState(null);
+    const [charactersError, setCharactersError] = useState(null);
+    const [staffError, setStaffError] = useState(null);
+    const [recommendationsError, setRecommendationsError] = useState(null);
+    
     const [reviewForm, setReviewForm] = useState({
         ratings: "",
         text: ""
@@ -88,87 +103,123 @@ function AnimeDetailedPage() {
 //   } finally { setWatchlistActionLoading(false); }
 // };    
 
-    useEffect(() => {
-        async function fetchAnime() {
-            setLoadingAnime(true);
-            setError(null);
-            try {
-                const data = await getAnimeDetails(animeId);
+    // Fetch functions with independent error handling and cleanup
+    const fetchAnime = useCallback(async () => {
+        setLoadingAnime(true);
+        setAnimeError(null);
+        try {
+            const data = await getAnimeDetails(animeId);
+            if (isMountedRef.current) {
                 setAnime(data);
             }
-            catch(err){
-                console.log(err);
-                setError("Failed to load anime details...");
+        } catch (err) {
+            console.error("Failed to load anime details:", err);
+            if (isMountedRef.current) {
+                setAnimeError("Failed to load anime details. Please try again.");
             }
-            finally {
+        } finally {
+            if (isMountedRef.current) {
                 setLoadingAnime(false);
             }
         }
+    }, [animeId]);
 
-        async function fetchReviews() {
-            setLoadingReview(true);
-            setError(null);
-            try {
-                const data = await getAnimeReviews(animeId);
+    const fetchReviews = useCallback(async () => {
+        setLoadingReview(true);
+        setReviewsError(null);
+        try {
+            const data = await getAnimeReviews(animeId);
+            if (isMountedRef.current) {
                 setReviews(data);
-            }            
-            catch(err) {
-                console.log(err);
-                setError("Failed to load Reviews...");
             }
-            finally {
+        } catch (err) {
+            console.error("Failed to load reviews:", err);
+            if (isMountedRef.current) {
+                setReviewsError("Failed to load reviews. Please try again.");
+            }
+        } finally {
+            if (isMountedRef.current) {
                 setLoadingReview(false);
             }
         }
+    }, [animeId]);
 
-        async function fetchCharacters() {
-            setLoadingCharacters(true);
-            try {
-                const data = await getAnimeCharacters(animeId);
+    const fetchCharacters = useCallback(async () => {
+        setLoadingCharacters(true);
+        setCharactersError(null);
+        try {
+            const data = await getAnimeCharacters(animeId);
+            if (isMountedRef.current) {
                 setCharacters(data);
             }
-            catch(err) {
-                console.log(err);
+        } catch (err) {
+            console.error("Failed to load characters:", err);
+            if (isMountedRef.current) {
+                setCharactersError("Failed to load characters. Please try again.");
             }
-            finally {
+        } finally {
+            if (isMountedRef.current) {
                 setLoadingCharacters(false);
             }
         }
+    }, [animeId]);
 
-        async function fetchStaff() {
-            setLoadingStaff(true);
-            try {
-                const data = await getAnimeStaff(animeId);
+    const fetchStaff = useCallback(async () => {
+        setLoadingStaff(true);
+        setStaffError(null);
+        try {
+            const data = await getAnimeStaff(animeId);
+            if (isMountedRef.current) {
                 setStaff(data);
             }
-            catch(err) {
-                console.log(err);
+        } catch (err) {
+            console.error("Failed to load staff:", err);
+            if (isMountedRef.current) {
+                setStaffError("Failed to load staff. Please try again.");
             }
-            finally {
+        } finally {
+            if (isMountedRef.current) {
                 setLoadingStaff(false);
             }
         }
+    }, [animeId]);
 
-        async function fetchRecommendations() {
-            setLoadingRecommendations(true);
-            try {
-                const data = await getAnimeRecommendations(animeId);
+    const fetchRecommendations = useCallback(async () => {
+        setLoadingRecommendations(true);
+        setRecommendationsError(null);
+        try {
+            const data = await getAnimeRecommendations(animeId);
+            if (isMountedRef.current) {
                 setRecommendations(data);
             }
-            catch(err) {
-                console.log(err);
+        } catch (err) {
+            console.error("Failed to load recommendations:", err);
+            if (isMountedRef.current) {
+                setRecommendationsError("Failed to load recommendations. Please try again.");
             }
-            finally {
+        } finally {
+            if (isMountedRef.current) {
                 setLoadingRecommendations(false);
             }
         }
+    }, [animeId]);
 
+    // Initial data fetch on component mount or animeId change
+    useEffect(() => {
+        // Reset mount ref on new animeId
+        isMountedRef.current = true;
+        
         fetchAnime();
         fetchReviews();
         fetchCharacters();
         fetchStaff();
         fetchRecommendations();
-    },[animeId]);
+        
+        // Cleanup: prevent state updates after unmount
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, [fetchAnime, fetchReviews, fetchCharacters, fetchStaff, fetchRecommendations]);
 
     // Scroll to top functionality
     useEffect(() => {
@@ -198,18 +249,25 @@ function AnimeDetailedPage() {
             return;
         }
         setSubmittingReview(true);
+        setReviewsError(null);
         try {
             await createReview(animeId, Number(reviewForm.ratings), reviewForm.text);
             const updated = await getAnimeReviews(animeId);
-            setReviews(updated);
-            setReviewForm({ratings: "", text: ""});
+            if (isMountedRef.current) {
+                setReviews(updated);
+                setReviewForm({ratings: "", text: ""});
+            }
         }
         catch(err) {
-            console.log(err);
-            setError("Failed to submit review...");
+            console.error("Failed to submit review:", err);
+            if (isMountedRef.current) {
+                setReviewsError("Failed to submit review. Please try again.");
+            }
         }
         finally {
-            setSubmittingReview(false);
+            if (isMountedRef.current) {
+                setSubmittingReview(false);
+            }
         }
     };
 
@@ -264,16 +322,16 @@ function AnimeDetailedPage() {
         </div>
     );
 
-    // Error Component
+    // Error Component for critical anime details failure
     const ErrorScreen = () => (
         <div className="error-container">
             <div className="error-content">
                 <div className="error-icon">😢</div>
                 <h2 className="error-title">Oops! Something went wrong</h2>
-                <p className="error-message">{error}</p>
+                <p className="error-message">{animeError}</p>
                 <button 
                     className="retry-button" 
-                    onClick={() => window.location.reload()}
+                    onClick={fetchAnime}
                 >
                     Try Again
                 </button>
@@ -301,7 +359,7 @@ function AnimeDetailedPage() {
     );
 
     if (loadingAnime) return <LoadingScreen />;
-    if (error) return <ErrorScreen />;
+    if (animeError) return <ErrorScreen />;
     if(!anime) return <NotFoundScreen />;
 
     const img = 
@@ -491,10 +549,9 @@ function AnimeDetailedPage() {
                     {activeTab === 'characters' && (
                         <div className="characters-content">
                             {loadingCharacters ? (
-                                <div className="loading-mini">
-                                    <div className="mini-spinner"></div>
-                                    <p>Loading characters...</p>
-                                </div>
+                                <SectionLoader message="Loading characters..." />
+                            ) : charactersError ? (
+                                <SectionError message={charactersError} onRetry={fetchCharacters} />
                             ) : characters.length === 0 ? (
                                 <div className="no-data">
                                     <span className="no-data-icon">😢</span>
@@ -503,7 +560,7 @@ function AnimeDetailedPage() {
                             ) : (
                                 <div className="characters-grid">
                                     {characters.slice(0, 12).map((char, index) => (
-                                        <div key={index} className="character-card">
+                                        <div key={char.character?.mal_id || index} className="character-card">
                                             <div className="character-info">
                                                 <div className="character-image-container">
                                                     <img 
@@ -547,10 +604,9 @@ function AnimeDetailedPage() {
                     {activeTab === 'staff' && (
                         <div className="staff-content">
                             {loadingStaff ? (
-                                <div className="loading-mini">
-                                    <div className="mini-spinner"></div>
-                                    <p>Loading staff...</p>
-                                </div>
+                                <SectionLoader message="Loading staff..." />
+                            ) : staffError ? (
+                                <SectionError message={staffError} onRetry={fetchStaff} />
                             ) : staff.length === 0 ? (
                                 <div className="no-data">
                                     <span className="no-data-icon">😢</span>
@@ -559,7 +615,7 @@ function AnimeDetailedPage() {
                             ) : (
                                 <div className="staff-grid">
                                     {staff.slice(0, 12).map((member, index) => (
-                                        <div key={index} className="staff-card">
+                                        <div key={member.person?.mal_id || index} className="staff-card">
                                             <div className="staff-image-container">
                                                 <img 
                                                     src={member.person?.images?.jpg?.image_url || '/placeholder.png'}
@@ -592,10 +648,9 @@ function AnimeDetailedPage() {
                         You Might Also Like
                     </h2>
                     {loadingRecommendations ? (
-                        <div className="loading-mini">
-                            <div className="mini-spinner"></div>
-                            <p>Loading recommendations...</p>
-                        </div>
+                        <SectionLoader message="Loading recommendations..." />
+                    ) : recommendationsError ? (
+                        <SectionError message={recommendationsError} onRetry={fetchRecommendations} />
                     ) : recommendations.length === 0 ? (
                         <div className="no-data">
                             <span className="no-data-icon">🔍</span>
@@ -606,7 +661,7 @@ function AnimeDetailedPage() {
                             {recommendations.slice(0, 8).map((rec, index) => (
                                 <Link 
                                     to={`/anime/${rec.entry?.mal_id}`} 
-                                    key={index} 
+                                    key={rec.entry?.mal_id || index} 
                                     className="recommendation-card"
                                 >
                                     <div className="rec-image-container">
@@ -639,10 +694,9 @@ function AnimeDetailedPage() {
                     
                     <div className="reviews-content">
                         {loadingReview ? (
-                            <div className="reviews-loading">
-                                <div className="mini-spinner"></div>
-                                <p>Loading reviews...</p>
-                            </div>
+                            <SectionLoader message="Loading reviews..." />
+                        ) : reviewsError ? (
+                            <SectionError message={reviewsError} onRetry={fetchReviews} />
                         ) : reviews.length === 0 ? (
                             <div className="no-reviews">
                                 <div className="no-reviews-icon">💭</div>

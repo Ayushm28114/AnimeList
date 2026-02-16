@@ -81,7 +81,7 @@ class AnimeProxyView(APIView):
             if data is None:
                 url = f"{self.JIKAN_BASE}/anime"
                 params = {'q':q, 'page':page
-                          , 'sfw' : 'true', 'genres_exclude': 'Hentai,Erotica,Ecchi,Adult,Yaoi,Yuri,Harem'
+                        #   , 'sfw' : 'true', 'genres_exclude': 'Hentai,Erotica,Ecchi,Adult,Yaoi,Yuri,Harem'
                           }
                 resp= requests.get(url, params=params)
                 data = resp.json()

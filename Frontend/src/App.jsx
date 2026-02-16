@@ -10,7 +10,9 @@ import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import AboutUs from './Components/AboutUs';
 import Contact from './Components/Contact';
-import HomePage from './pages/HomePage'; // create this to show search/results
+import HomePage from './pages/HomePage';
+import GlobalLoader from './Components/GlobalLoader';
+import ToastContainer from './Components/ToastContainer';
 
 const App = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -18,8 +20,10 @@ const App = () => {
   return (
     <div className="app-container">
       <Navbar isAuthenticated={isAuthenticated} user={user} logout={logout} />
+      <ToastContainer />
 
       <main className="main-content">
+        <GlobalLoader />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/anime/:id" element={<AnimeDetailedPage />} />
@@ -28,6 +32,7 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/register" element={<RegisterPage />} />
+          
         </Routes>
       </main>
 
