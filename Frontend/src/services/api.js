@@ -1,5 +1,7 @@
 import axios from "axios";
 import { showToast } from "../utils/toastHandler";
+import { startLoader, stopLoader } from "../utils/topLoader";
+
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
@@ -48,6 +50,7 @@ function getErrorMessage(error) {
 }
 
 api.interceptors.request.use((config) => {
+  startLoader();
   const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -56,8 +59,12 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    stopLoader();
+    return res;
+  },
   async (error) => {
+    stopLoader();
     const originalRequest = error.config;
 
     // Skip toast for cancelled requests
