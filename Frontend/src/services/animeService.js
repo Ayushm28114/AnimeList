@@ -8,6 +8,23 @@ export async function searchAnime(query) {
   return res.data.data || [];
 }
 
+// Get search suggestions (lightweight, limited results)
+export async function getSearchSuggestions(query) {
+  if (!query || query.trim().length < 2) return [];
+  const res = await publicApi.get("/anime/search/", {
+    params: { q: query, limit: 8 },
+  });
+  const data = res.data.data || [];
+  // Return simplified suggestion objects
+  return data.slice(0, 8).map(anime => ({
+    mal_id: anime.mal_id,
+    title: anime.title,
+    image: anime.images?.jpg?.small_image_url || anime.images?.jpg?.image_url || '',
+    type: anime.type || 'Anime',
+    year: anime.year || ''
+  }));
+}
+
 export async function getAnimeDetails(animeId) {
   const res = await publicApi.get(`/anime/${animeId}/`);
   return res.data.data;

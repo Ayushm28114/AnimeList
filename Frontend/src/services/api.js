@@ -1,6 +1,12 @@
 import axios from "axios";
 import { showToast } from "../utils/toastHandler";
 import { startLoader, stopLoader } from "../utils/topLoader";
+import {
+  getRequestKey,
+  addPendingRequest,
+  getPendingRequest,
+  removePendingRequest,
+} from "../utils/requestCache";
 
 
 const api = axios.create({
@@ -51,6 +57,17 @@ function getErrorMessage(error) {
 
 api.interceptors.request.use((config) => {
   startLoader();
+  
+  const key = getRequestKey(config);
+  const existingRequest = getPendingRequest(key);
+  
+  if (existingRequest) {
+    return existingRequest;
+  }
+  
+  const request = Promise.resolve(config);
+  addPendingRequest(key, request);
+  
   const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -61,10 +78,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => {
     stopLoader();
+    const key = getRequestKey(res.config);
+    removePendingRequest(key);
     return res;
   },
   async (error) => {
     stopLoader();
+    const key = getRequestKey(error.config || {});
+    removePendingRequest(key);
     const originalRequest = error.config;
 
     // Skip toast for cancelled requests

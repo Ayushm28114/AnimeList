@@ -1,6 +1,12 @@
 import axios from "axios";
 import { showToast } from "../utils/toastHandler";
 import { startLoader, stopLoader } from "../utils/topLoader";
+import {
+  getRequestKey,
+  addPendingRequest,
+  getPendingRequest,
+  removePendingRequest,
+} from "../utils/requestCache";
 
 const publicApi = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
@@ -38,16 +44,31 @@ function getErrorMessage(error) {
 
 publicApi.interceptors.request.use((config) => {
   startLoader();
+  
+  const key = getRequestKey(config);
+  const existingRequest = getPendingRequest(key);
+  
+  if (existingRequest) {
+    return existingRequest;
+  }
+  
+  const request = Promise.resolve(config);
+  addPendingRequest(key, request);
+  
   return config;
 });
 
 publicApi.interceptors.response.use(
   (res) => {
     stopLoader();
+    const key = getRequestKey(res.config);
+    removePendingRequest(key);
     return res;
   },
   (error) => {
     stopLoader();
+    const key = getRequestKey(error.config || {});
+    removePendingRequest(key);
 
     // Skip toast for cancelled requests
     if (axios.isCancel(error)) {

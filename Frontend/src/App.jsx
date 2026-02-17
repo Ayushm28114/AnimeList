@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import AnimeDetailedPage from "./pages/AnimeDetailedPage";
+import SearchPage from "./pages/SearchPage";
 import { useAuth } from "./context/AuthContext";
 import React from 'react';
 import Navbar from './Components/Navbar';
@@ -26,6 +27,7 @@ const App = () => {
         <GlobalLoader />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/anime/:id" element={<AnimeDetailedPage />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
