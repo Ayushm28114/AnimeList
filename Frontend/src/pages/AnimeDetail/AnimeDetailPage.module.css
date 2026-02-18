@@ -1,0 +1,977 @@
+/* ========================================
+   ANIME DETAIL PAGE - CSS MODULE
+   Production-quality responsive design
+   ======================================== */
+
+/* CSS Variables for theming */
+:root {
+  --ad-primary: #6366f1;
+  --ad-primary-dark: #4f46e5;
+  --ad-secondary: #ec4899;
+  --ad-bg-dark: #0f0f1a;
+  --ad-bg-card: #1a1a2e;
+  --ad-bg-card-hover: #252540;
+  --ad-text-primary: #ffffff;
+  --ad-text-secondary: #a0a0b0;
+  --ad-text-muted: #6b6b7b;
+  --ad-border: #2a2a3e;
+  --ad-success: #10b981;
+  --ad-warning: #f59e0b;
+  --ad-error: #ef4444;
+  --ad-gradient: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+}
+
+/* ========================================
+   PAGE CONTAINER
+   ======================================== */
+.pageContainer {
+  min-height: 100vh;
+  background: var(--ad-bg-dark);
+  color: var(--ad-text-primary);
+}
+
+/* ========================================
+   HERO SECTION
+   ======================================== */
+.hero {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.heroBanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center top;
+  filter: blur(20px);
+  transform: scale(1.1);
+  opacity: 0.4;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 15, 26, 0.3) 0%,
+    rgba(15, 15, 26, 0.8) 60%,
+    rgba(15, 15, 26, 1) 100%
+  );
+}
+
+.heroContent {
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.posterContainer {
+  flex-shrink: 0;
+  width: 280px;
+}
+
+.poster {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.poster:hover {
+  transform: scale(1.02);
+}
+
+.heroInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleSection {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  line-height: 1.2;
+  background: var(--ad-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.japaneseTitle {
+  font-size: 1.1rem;
+  color: var(--ad-text-secondary);
+  margin: 0;
+  font-weight: 400;
+}
+
+.scoreSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.scoreBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ad-bg-card);
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--ad-border);
+}
+
+.starIcon {
+  color: #fbbf24;
+  font-size: 1.5rem;
+}
+
+.scoreValue {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ad-text-primary);
+}
+
+.scoreMax {
+  font-size: 1rem;
+  color: var(--ad-text-muted);
+}
+
+.statsRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ad-text-primary);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--ad-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   META INFO SECTION
+   ======================================== */
+.metaInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ad-bg-card);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: 1px solid var(--ad-border);
+}
+
+.metaIcon {
+  color: var(--ad-primary);
+  font-size: 1rem;
+}
+
+.metaLabel {
+  color: var(--ad-text-muted);
+}
+
+.metaValue {
+  color: var(--ad-text-primary);
+  font-weight: 500;
+}
+
+/* ========================================
+   MAIN CONTENT
+   ======================================== */
+.mainContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+/* ========================================
+   SECTION STYLES
+   ======================================== */
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sectionIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ad-gradient);
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ========================================
+   GENRE CHIPS
+   ======================================== */
+.genreContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.genreChip {
+  padding: 8px 18px;
+  background: var(--ad-bg-card);
+  border: 1px solid var(--ad-border);
+  border-radius: 50px;
+  font-size: 0.9rem;
+  color: var(--ad-text-secondary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.genreChip:hover {
+  background: var(--ad-primary);
+  color: white;
+  border-color: var(--ad-primary);
+  transform: translateY(-2px);
+}
+
+.studioChip {
+  padding: 8px 18px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+  border: 1px solid var(--ad-primary);
+  border-radius: 50px;
+  font-size: 0.9rem;
+  color: var(--ad-primary);
+  font-weight: 500;
+}
+
+/* ========================================
+   SYNOPSIS
+   ======================================== */
+.synopsisContainer {
+  background: var(--ad-bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--ad-border);
+}
+
+.synopsisText {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ad-text-secondary);
+  margin: 0;
+  white-space: pre-line;
+}
+
+.synopsisText.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.readMoreBtn {
+  background: none;
+  border: none;
+  color: var(--ad-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-top: 8px;
+  transition: color 0.2s;
+}
+
+.readMoreBtn:hover {
+  color: var(--ad-secondary);
+}
+
+/* ========================================
+   TRAILER SECTION
+   ======================================== */
+.trailerContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ad-bg-card);
+  border: 1px solid var(--ad-border);
+}
+
+.trailerIframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ========================================
+   THEME SONGS
+   ======================================== */
+.themeSongsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.themeSection {
+  background: var(--ad-bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--ad-border);
+}
+
+.themeTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--ad-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.themeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.themeItem {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ad-border);
+  font-size: 0.9rem;
+  color: var(--ad-text-secondary);
+}
+
+.themeItem:last-child {
+  border-bottom: none;
+}
+
+.themeNumber {
+  color: var(--ad-text-muted);
+  margin-right: 8px;
+}
+
+/* ========================================
+   CHARACTERS CAROUSEL
+   ======================================== */
+.carouselContainer {
+  position: relative;
+}
+
+.carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 0 16px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ad-primary) var(--ad-bg-card);
+}
+
+.carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.carousel::-webkit-scrollbar-track {
+  background: var(--ad-bg-card);
+  border-radius: 3px;
+}
+
+.carousel::-webkit-scrollbar-thumb {
+  background: var(--ad-primary);
+  border-radius: 3px;
+}
+
+.characterCard {
+  flex-shrink: 0;
+  width: 160px;
+  background: var(--ad-bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ad-border);
+  transition: all 0.3s ease;
+}
+
+.characterCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border-color: var(--ad-primary);
+}
+
+.characterImageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.characterImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.characterRole {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.characterRole.main {
+  background: var(--ad-primary);
+}
+
+.characterRole.supporting {
+  background: var(--ad-secondary);
+}
+
+.characterInfo {
+  padding: 12px;
+}
+
+.characterName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.voiceActor {
+  font-size: 0.8rem;
+  color: var(--ad-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========================================
+   RELATED ANIME
+   ======================================== */
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.relatedCard {
+  background: var(--ad-bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ad-border);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.relatedCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border-color: var(--ad-primary);
+}
+
+.relatedImageContainer {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+}
+
+.relatedImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.relationBadge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  background: var(--ad-gradient);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.relatedInfo {
+  padding: 12px;
+}
+
+.relatedTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.relatedType {
+  font-size: 0.75rem;
+  color: var(--ad-text-muted);
+  margin-top: 4px;
+}
+
+/* ========================================
+   STATISTICS SECTION
+   ======================================== */
+.statsContainer {
+  background: var(--ad-bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--ad-border);
+}
+
+.statsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.statBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.statBarLabel {
+  width: 120px;
+  font-size: 0.9rem;
+  color: var(--ad-text-secondary);
+  flex-shrink: 0;
+}
+
+.statBarTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--ad-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.statBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.statBarFill.watching {
+  background: var(--ad-primary);
+}
+
+.statBarFill.completed {
+  background: var(--ad-success);
+}
+
+.statBarFill.onHold {
+  background: var(--ad-warning);
+}
+
+.statBarFill.dropped {
+  background: var(--ad-error);
+}
+
+.statBarFill.planToWatch {
+  background: var(--ad-text-muted);
+}
+
+.statBarCount {
+  width: 80px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--ad-text-muted);
+  flex-shrink: 0;
+}
+
+/* ========================================
+   RECOMMENDATIONS GRID
+   ======================================== */
+.recommendationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.recommendationCard {
+  background: var(--ad-bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ad-border);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.recommendationCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+  border-color: var(--ad-primary);
+}
+
+.recommendationImageContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 140%;
+  overflow: hidden;
+}
+
+.recommendationImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommendationCard:hover .recommendationImage {
+  transform: scale(1.05);
+}
+
+.recommendationVotes {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.recommendationInfo {
+  padding: 12px;
+}
+
+.recommendationTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+/* ========================================
+   SKELETON LOADERS
+   ======================================== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ad-bg-card) 25%,
+    var(--ad-bg-card-hover) 50%,
+    var(--ad-bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeletonPoster {
+  width: 280px;
+  height: 400px;
+}
+
+.skeletonTitle {
+  height: 40px;
+  width: 70%;
+  margin-bottom: 12px;
+}
+
+.skeletonText {
+  height: 20px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeletonTextShort {
+  height: 20px;
+  width: 60%;
+}
+
+.skeletonCard {
+  height: 280px;
+}
+
+/* ========================================
+   ERROR STATE
+   ======================================== */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px;
+}
+
+.errorIcon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.errorTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.errorMessage {
+  color: var(--ad-text-secondary);
+  margin: 0 0 24px;
+}
+
+.retryBtn {
+  padding: 12px 32px;
+  background: var(--ad-gradient);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.retryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* ========================================
+   NOT FOUND STATE
+   ======================================== */
+.notFoundContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px;
+}
+
+.notFoundIcon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+}
+
+.backBtn {
+  padding: 12px 32px;
+  background: var(--ad-bg-card);
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  color: var(--ad-text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backBtn:hover {
+  background: var(--ad-bg-card-hover);
+  border-color: var(--ad-primary);
+}
+
+/* ========================================
+   TWO COLUMN LAYOUT
+   ======================================== */
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 1024px) {
+  .heroContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .posterContainer {
+    width: 220px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .scoreSection {
+    justify-content: center;
+  }
+
+  .statsRow {
+    justify-content: center;
+  }
+
+  .metaInfo {
+    justify-content: center;
+  }
+
+  .twoColumnGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroContent {
+    padding: 40px 16px 30px;
+    gap: 24px;
+  }
+
+  .posterContainer {
+    width: 180px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .scoreBox {
+    padding: 10px 16px;
+  }
+
+  .scoreValue {
+    font-size: 1.4rem;
+  }
+
+  .mainContent {
+    padding: 0 16px 40px;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .characterCard {
+    width: 140px;
+  }
+
+  .characterImageContainer {
+    height: 170px;
+  }
+
+  .recommendationsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .themeSongsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .relatedGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .statBarLabel {
+    width: 90px;
+    font-size: 0.8rem;
+  }
+
+  .statBarCount {
+    width: 60px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .posterContainer {
+    width: 150px;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  .metaItem {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .genreChip,
+  .studioChip {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+}

@@ -3,7 +3,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
-import AnimeDetailedPage from "./pages/AnimeDetailedPage";
+import AnimeDetailPage from "./pages/AnimeDetail";
 import SearchPage from "./pages/SearchPage";
 import { useAuth } from "./context/AuthContext";
 import React from 'react';
@@ -28,7 +28,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/anime/:id" element={<AnimeDetailedPage />} />
+          <Route path="/anime/:id" element={<AnimeDetailPage />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<LoginPage />} />

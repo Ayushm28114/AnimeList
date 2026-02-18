@@ -2,7 +2,7 @@ from os import name
 from re import search
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, ReviewViewSet, WatchlistViewSet, AnimeProxyView, AnimeCharactersView, AnimeStaffView, AnimeRecommendationsView
+from .views import RegisterView, ReviewViewSet, WatchlistViewSet, AnimeProxyView, AnimeCharactersView, AnimeStaffView, AnimeRecommendationsView, AnimeRelationsView, AnimeStatisticsView
 
 router = DefaultRouter()
 router.register(r'reviews', ReviewViewSet, basename='review')
@@ -16,6 +16,8 @@ urlpatterns = [
     path('anime/<int:anime_id>/characters/', AnimeCharactersView.as_view(), name='anime-characters'),
     path('anime/<int:anime_id>/staff/', AnimeStaffView.as_view(), name='anime-staff'),
     path('anime/<int:anime_id>/recommendations/', AnimeRecommendationsView.as_view(), name='anime-recommendations'),
+    path('anime/<int:anime_id>/relations/', AnimeRelationsView.as_view(), name='anime-relations'),
+    path('anime/<int:anime_id>/statistics/', AnimeStatisticsView.as_view(), name='anime-statistics'),
     path('anime/search/', AnimeProxyView.as_view(), name='anime-search'),
     path('auth/register/', RegisterView.as_view({'post': 'create'}), name='register'),
 ]

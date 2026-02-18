@@ -67,9 +67,22 @@ class AnimeProxyView(APIView):
             data = cache.get(cache_key)
             if data is None:
                 url = f"{self.JIKAN_BASE}/anime/{anime_id}"
-                resp = requests.get(url)
-                data = resp.json()
-                cache.set(cache_key, data, timeout=60*60)
+                try:
+                    resp = requests.get(url, timeout=10)
+                    data = resp.json()
+                    
+                    # Only cache successful responses that have 'data' field
+                    if resp.status_code == 200 and 'data' in data:
+                        cache.set(cache_key, data, timeout=60*60)
+                    elif resp.status_code == 404:
+                        return Response({'error': 'Anime not found'}, status=404)
+                    elif resp.status_code == 429:
+                        return Response({'error': 'Rate limited, please try again'}, status=429)
+                    else:
+                        # Don't cache error responses - return error
+                        return Response({'error': 'Failed to fetch anime'}, status=502)
+                except requests.exceptions.RequestException:
+                    return Response({'error': 'Failed to connect to anime database'}, status=503)
             return Response(data)
 
         else:
@@ -100,9 +113,17 @@ class AnimeCharactersView(APIView):
         data = cache.get(cache_key)
         if data is None:
             url = f"{self.JIKAN_BASE}/anime/{anime_id}/characters"
-            resp = requests.get(url)
-            data = resp.json()
-            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+            try:
+                resp = requests.get(url, timeout=10)
+                data = resp.json()
+                if resp.status_code == 200 and 'data' in data:
+                    cache.set(cache_key, data, timeout=60*60*24)
+                elif resp.status_code == 429:
+                    return Response({'error': 'Rate limited'}, status=429)
+                else:
+                    return Response({'data': []})  # Return empty list on error
+            except requests.exceptions.RequestException:
+                return Response({'data': []})
         return Response(data)
 
 
@@ -116,9 +137,17 @@ class AnimeStaffView(APIView):
         data = cache.get(cache_key)
         if data is None:
             url = f"{self.JIKAN_BASE}/anime/{anime_id}/staff"
-            resp = requests.get(url)
-            data = resp.json()
-            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+            try:
+                resp = requests.get(url, timeout=10)
+                data = resp.json()
+                if resp.status_code == 200 and 'data' in data:
+                    cache.set(cache_key, data, timeout=60*60*24)
+                elif resp.status_code == 429:
+                    return Response({'error': 'Rate limited'}, status=429)
+                else:
+                    return Response({'data': []})
+            except requests.exceptions.RequestException:
+                return Response({'data': []})
         return Response(data)
 
 
@@ -132,9 +161,65 @@ class AnimeRecommendationsView(APIView):
         data = cache.get(cache_key)
         if data is None:
             url = f"{self.JIKAN_BASE}/anime/{anime_id}/recommendations"
-            resp = requests.get(url)
-            data = resp.json()
-            cache.set(cache_key, data, timeout=60*60*24)  # Cache for 24 hours
+            try:
+                resp = requests.get(url, timeout=10)
+                data = resp.json()
+                if resp.status_code == 200 and 'data' in data:
+                    cache.set(cache_key, data, timeout=60*60*24)
+                elif resp.status_code == 429:
+                    return Response({'error': 'Rate limited'}, status=429)
+                else:
+                    return Response({'data': []})
+            except requests.exceptions.RequestException:
+                return Response({'data': []})
+        return Response(data)
+
+
+class AnimeRelationsView(APIView):
+    """Fetch related anime"""
+    permission_classes = [permissions.AllowAny]
+    JIKAN_BASE = "https://api.jikan.moe/v4"
+
+    def get(self, request, anime_id):
+        cache_key = f"anime_relations_{anime_id}"
+        data = cache.get(cache_key)
+        if data is None:
+            url = f"{self.JIKAN_BASE}/anime/{anime_id}/relations"
+            try:
+                resp = requests.get(url, timeout=10)
+                data = resp.json()
+                if resp.status_code == 200 and 'data' in data:
+                    cache.set(cache_key, data, timeout=60*60*24)
+                elif resp.status_code == 429:
+                    return Response({'error': 'Rate limited'}, status=429)
+                else:
+                    return Response({'data': []})
+            except requests.exceptions.RequestException:
+                return Response({'data': []})
+        return Response(data)
+
+
+class AnimeStatisticsView(APIView):
+    """Fetch statistics for an anime"""
+    permission_classes = [permissions.AllowAny]
+    JIKAN_BASE = "https://api.jikan.moe/v4"
+
+    def get(self, request, anime_id):
+        cache_key = f"anime_statistics_{anime_id}"
+        data = cache.get(cache_key)
+        if data is None:
+            url = f"{self.JIKAN_BASE}/anime/{anime_id}/statistics"
+            try:
+                resp = requests.get(url, timeout=10)
+                data = resp.json()
+                if resp.status_code == 200 and 'data' in data:
+                    cache.set(cache_key, data, timeout=60*60*24)
+                elif resp.status_code == 429:
+                    return Response({'error': 'Rate limited'}, status=429)
+                else:
+                    return Response({'data': {}})
+            except requests.exceptions.RequestException:
+                return Response({'data': {}})
         return Response(data)
         
 

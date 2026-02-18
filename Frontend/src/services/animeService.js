@@ -65,3 +65,13 @@ export async function getAnimeRecommendations(animeId) {
   const res = await publicApi.get(`/anime/${animeId}/recommendations/`);
   return res.data.data || [];
 }
+
+export async function getAnimeRelations(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/relations/`);
+  return res.data.data || [];
+}
+
+export async function getAnimeStatistics(animeId) {
+  const res = await publicApi.get(`/anime/${animeId}/statistics/`);
+  return res.data.data || {};
+}
