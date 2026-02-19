@@ -333,6 +333,19 @@
 /* ========================================
    TRAILER SECTION
    ======================================== */
+.trailerWrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .trailerWrapper {
+    max-width: 640px;
+    padding: 0;
+  }
+}
+
 .trailerContainer {
   position: relative;
   width: 100%;
@@ -341,6 +354,12 @@
   overflow: hidden;
   background: var(--ad-bg-card);
   border: 1px solid var(--ad-border);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.trailerContainer.playing {
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
 }
 
 .trailerIframe {
@@ -350,6 +369,73 @@
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.trailerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.trailerOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.playButton {
+  width: 64px;
+  height: 64px;
+  background: var(--ad-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
+
+.trailerStatus {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ad-text-muted);
+}
+
+.statusDot.active {
+  background: var(--ad-success);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ========================================
@@ -540,6 +626,21 @@
   object-fit: cover;
 }
 
+.relatedImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.relatedInitial {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .relationBadge {
   position: absolute;
   bottom: 8px;
@@ -570,6 +671,32 @@
   font-size: 0.75rem;
   color: var(--ad-text-muted);
   margin-top: 4px;
+}
+
+/* See More Button */
+.seeMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.seeMoreBtn {
+  padding: 12px 28px;
+  background: transparent;
+  border: 2px solid var(--ad-primary);
+  border-radius: 50px;
+  color: var(--ad-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.seeMoreBtn:hover {
+  background: var(--ad-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
 /* ========================================
@@ -973,5 +1100,225 @@
   .studioChip {
     padding: 6px 14px;
     font-size: 0.8rem;
+  }
+
+  .hero {
+    min-height: 400px;
+  }
+
+  .heroContent {
+    padding: 30px 12px 24px;
+    gap: 20px;
+  }
+
+  .japaneseTitle {
+    font-size: 0.95rem;
+  }
+
+  .scoreBox {
+    padding: 8px 14px;
+  }
+
+  .scoreValue {
+    font-size: 1.2rem;
+  }
+
+  .starIcon {
+    font-size: 1.2rem;
+  }
+
+  .statValue {
+    font-size: 1rem;
+  }
+
+  .statLabel {
+    font-size: 0.65rem;
+  }
+
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .sectionHeader {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  .sectionIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+
+  .synopsisContainer {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .synopsisText {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .trailerWrapper {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .trailerContainer {
+    border-radius: 12px;
+  }
+
+  .playButton {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .characterCard {
+    width: 120px;
+  }
+
+  .characterImageContainer {
+    height: 150px;
+  }
+
+  .characterName {
+    font-size: 0.8rem;
+  }
+
+  .voiceActor {
+    font-size: 0.7rem;
+  }
+
+  .relatedGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .relatedImageContainer {
+    height: 100px;
+  }
+
+  .relatedTitle {
+    font-size: 0.8rem;
+  }
+
+  .relatedInitial {
+    font-size: 2rem;
+  }
+
+  .seeMoreBtn {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+
+  .statsContainer {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .statBar {
+    gap: 10px;
+  }
+
+  .statBarLabel {
+    width: 75px;
+    font-size: 0.75rem;
+  }
+
+  .statBarCount {
+    width: 50px;
+    font-size: 0.7rem;
+  }
+
+  .recommendationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .recommendationTitle {
+    font-size: 0.8rem;
+  }
+
+  .recommendationInfo {
+    padding: 10px;
+  }
+
+  .themeSongsGrid {
+    gap: 16px;
+  }
+
+  .themeSection {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .themeItem {
+    padding: 8px 0;
+    font-size: 0.85rem;
+  }
+
+  .errorContainer,
+  .notFoundContainer {
+    padding: 24px;
+    min-height: 50vh;
+  }
+
+  .errorIcon,
+  .notFoundIcon {
+    font-size: 3rem;
+  }
+
+  .errorTitle {
+    font-size: 1.2rem;
+  }
+
+  .retryBtn,
+  .backBtn {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .posterContainer {
+    width: 130px;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .heroContent {
+    padding: 24px 10px 20px;
+  }
+
+  .mainContent {
+    padding: 0 12px 32px;
+  }
+
+  .characterCard {
+    width: 110px;
+  }
+
+  .characterImageContainer {
+    height: 130px;
+  }
+
+  .relatedGrid,
+  .recommendationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .statBarLabel {
+    width: 65px;
+    font-size: 0.7rem;
   }
 }

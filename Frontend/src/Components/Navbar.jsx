@@ -13,6 +13,7 @@ const Navbar = ({isAuthenticated, user, logout}) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef(null);
   const debounceRef = useRef(null);
   const navigate = useNavigate();
@@ -123,6 +124,22 @@ const Navbar = ({isAuthenticated, user, logout}) => {
 
   // Don't show search bar on homepage (it has its own)
   const showNavSearch = location.pathname !== '/';
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (mobileMenuOpen && !e.target.closest('.navbar-menu') && !e.target.closest('.mobile-menu-btn')) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [mobileMenuOpen]);
   
   return (
     <nav className="modern-navbar">
@@ -156,20 +173,31 @@ const Navbar = ({isAuthenticated, user, logout}) => {
             <span className="brand-accent">Verse</span>
           </Link>
         </div>
+
+        {/* Mobile Menu Toggle Button */}
+        <button 
+          className={`mobile-menu-btn ${mobileMenuOpen ? 'active' : ''}`}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+        </button>
         
-        <div className="navbar-menu">
+        <div className={`navbar-menu ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="navbar-nav">
-            <Link className="nav-link" to="/">
+            <Link className="nav-link" to="/" onClick={() => setMobileMenuOpen(false)}>
               <span className="nav-icon">🏠</span>
-              Home
+              <span className="nav-text">Home</span>
             </Link>
-            <Link className="nav-link" to="/about">
+            <Link className="nav-link" to="/about" onClick={() => setMobileMenuOpen(false)}>
               <span className="nav-icon">ℹ️</span>
-              About
+              <span className="nav-text">About</span>
             </Link>
-            <Link className="nav-link" to="/contact">
+            <Link className="nav-link" to="/contact" onClick={() => setMobileMenuOpen(false)}>
               <span className="nav-icon">📞</span>
-              Contact
+              <span className="nav-text">Contact</span>
             </Link>
           </div>
 
@@ -236,24 +264,24 @@ const Navbar = ({isAuthenticated, user, logout}) => {
                   <span className="user-avatar">👤</span>
                   <span className="user-name">Hi, {user?.username || 'User'}</span>
                 </div>
-                <Link className="auth-link profile-link" to="/profile">
+                <Link className="auth-link profile-link" to="/profile" onClick={() => setMobileMenuOpen(false)}>
                   <span className="nav-icon">👤</span>
-                  Profile
+                  <span className="auth-text">Profile</span>
                 </Link>
-                <button className="auth-button logout-btn" onClick={logout}>
+                <button className="auth-button logout-btn" onClick={() => { logout(); setMobileMenuOpen(false); }}>
                   <span className="nav-icon">🚪</span>
-                  Logout
+                  <span className="auth-text">Logout</span>
                 </button>
               </div>
             ) : (
               <div className="auth-links">
-                <Link className="auth-link login-link" to="/login">
+                <Link className="auth-link login-link" to="/login" onClick={() => setMobileMenuOpen(false)}>
                   <span className="nav-icon">🔑</span>
-                  Login
+                  <span className="auth-text">Login</span>
                 </Link>
-                <Link className="auth-link register-link" to="/register">
+                <Link className="auth-link register-link" to="/register" onClick={() => setMobileMenuOpen(false)}>
                   <span className="nav-icon">📝</span>
-                  Register
+                  <span className="auth-text">Register</span>
                 </Link>
               </div>
             )}
