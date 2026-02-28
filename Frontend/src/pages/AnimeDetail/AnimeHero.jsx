@@ -37,6 +37,9 @@ export default function AnimeHero({ anime }) {
           {/* Titles */}
           <div className={styles.titleSection}>
             <h1 className={styles.title}>{anime?.title || 'Unknown Title'}</h1>
+            {anime?.title_english && anime.title_english !== anime.title && (
+              <p className={styles.englishTitle}>{anime.title_english}</p>
+            )}
             {anime?.title_japanese && (
               <p className={styles.japaneseTitle}>{anime.title_japanese}</p>
             )}

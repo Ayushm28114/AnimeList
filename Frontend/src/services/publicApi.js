@@ -59,6 +59,11 @@ publicApi.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Skip toast for 429 rate limit errors (handled by retry logic)
+    if (error.response?.status === 429) {
+      return Promise.reject(error);
+    }
+
     const message = getErrorMessage(error);
     showToast(message, "error");
 

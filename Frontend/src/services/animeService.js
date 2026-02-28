@@ -1,6 +1,43 @@
 import api from "./api";
 import publicApi from "./publicApi";
 
+/**
+ * Helper function to execute API call with retry logic for rate limiting
+ * @param {Function} requestFn - Function that returns the axios promise
+ * @param {number} maxRetries - Maximum number of retry attempts
+ * @returns {Promise} - Resolves with the API response
+ */
+async function withRetry(requestFn, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      
+      const isRateLimited = 
+        error.response?.status === 429 ||
+        error.message?.toLowerCase().includes('rate') ||
+        error.response?.data?.message?.toLowerCase()?.includes('rate') ||
+        error.response?.data?.error?.toLowerCase()?.includes('rate');
+      
+      if (isRateLimited && attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        const backoffDelay = Math.pow(2, attempt - 1) * 1000;
+        console.log(`Rate limited on attempt ${attempt}, retrying in ${backoffDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        continue;
+      }
+      
+      // For non-rate-limit errors or final attempt, throw immediately
+      throw error;
+    }
+  }
+  
+  throw lastError;
+}
+
 export async function searchAnime(query) {
   const res = await publicApi.get("/anime/search/", {
     params: { q: query },
@@ -52,26 +89,36 @@ export async function deleteReview(reviewId) {
 }
 
 export async function getAnimeCharacters(animeId) {
-  const res = await publicApi.get(`/anime/${animeId}/characters/`);
-  return res.data.data || [];
+  return withRetry(async () => {
+    const res = await publicApi.get(`/anime/${animeId}/characters/`);
+    return res.data.data || [];
+  });
 }
 
 export async function getAnimeStaff(animeId) {
-  const res = await publicApi.get(`/anime/${animeId}/staff/`);
-  return res.data.data || [];
+  return withRetry(async () => {
+    const res = await publicApi.get(`/anime/${animeId}/staff/`);
+    return res.data.data || [];
+  });
 }
 
 export async function getAnimeRecommendations(animeId) {
-  const res = await publicApi.get(`/anime/${animeId}/recommendations/`);
-  return res.data.data || [];
+  return withRetry(async () => {
+    const res = await publicApi.get(`/anime/${animeId}/recommendations/`);
+    return res.data.data || [];
+  });
 }
 
 export async function getAnimeRelations(animeId) {
-  const res = await publicApi.get(`/anime/${animeId}/relations/`);
-  return res.data.data || [];
+  return withRetry(async () => {
+    const res = await publicApi.get(`/anime/${animeId}/relations/`);
+    return res.data.data || [];
+  });
 }
 
 export async function getAnimeStatistics(animeId) {
-  const res = await publicApi.get(`/anime/${animeId}/statistics/`);
-  return res.data.data || {};
+  return withRetry(async () => {
+    const res = await publicApi.get(`/anime/${animeId}/statistics/`);
+    return res.data.data || {};
+  });
 }

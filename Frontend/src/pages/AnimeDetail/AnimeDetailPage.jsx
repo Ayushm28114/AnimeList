@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import {
   getAnimeDetails,
   getAnimeCharacters,
@@ -7,6 +7,7 @@ import {
   getAnimeRelations,
   getAnimeStatistics,
 } from '../../services/animeService';
+import { clearQueue } from '../../utils/rateLimiter';
 
 import styles from './AnimeDetailPage.module.css';
 import { HeroSkeleton } from './Skeletons';
@@ -19,6 +20,7 @@ import CharactersCarousel from './CharactersCarousel';
 import RelatedAnime from './RelatedAnime';
 import StatisticsSection from './StatisticsSection';
 import RecommendationsGrid from './RecommendationsGrid';
+import ReviewsSection from './ReviewsSection';
 
 export default function AnimeDetailPage() {
   const { id } = useParams();
@@ -156,28 +158,63 @@ export default function AnimeDetailPage() {
     }
   }, [animeId]);
 
+  // Helper function to delay execution
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Staggered fetch to avoid rate limiting
+  // Jikan API allows ~3 requests per second, so we space them out
+  const fetchAllData = useCallback(async () => {
+    // Clear any pending requests from previous loads
+    clearQueue();
+
+    // Fetch main anime data first (most important)
+    await fetchAnime();
+    
+    // Add a small delay before starting supplementary data fetches
+    await delay(400);
+    
+    // Fetch supplementary data sequentially with delays to avoid rate limiting
+    // Characters (usually most important supplementary data)
+    fetchCharacters();
+    await delay(500);
+    
+    // Relations (important for navigation)
+    if (isMountedRef.current) {
+      fetchRelations();
+      await delay(500);
+    }
+    
+    // Statistics 
+    if (isMountedRef.current) {
+      fetchStatistics();
+      await delay(500);
+    }
+    
+    // Recommendations (least priority, load last)
+    if (isMountedRef.current) {
+      fetchRecommendations();
+    }
+  }, [fetchAnime, fetchCharacters, fetchRelations, fetchStatistics, fetchRecommendations]);
+
+  // Scroll to top when anime ID changes (navigating to a new anime)
+  // Using useLayoutEffect to ensure scroll happens before browser paint
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [animeId]);
+
   // Initial fetch
   useEffect(() => {
     isMountedRef.current = true;
     
-    // Scroll to top on page load
-    window.scrollTo(0, 0);
-
-    // Fetch main anime data first
-    fetchAnime();
-
-    // Fetch supplementary data in parallel
-    Promise.all([
-      fetchCharacters(),
-      fetchRecommendations(),
-      fetchRelations(),
-      fetchStatistics(),
-    ]);
+    fetchAllData();
 
     return () => {
       isMountedRef.current = false;
+      clearQueue(); // Clear queue on unmount
     };
-  }, [fetchAnime, fetchCharacters, fetchRecommendations, fetchRelations, fetchStatistics]);
+  }, [fetchAllData]);
 
   // Loading state
   if (loadingAnime) {
@@ -279,6 +316,9 @@ export default function AnimeDetailPage() {
           error={recommendationsError}
           onRetry={fetchRecommendations}
         />
+
+        {/* Reviews */}
+        <ReviewsSection animeId={animeId} />
       </div>
     </div>
   );
