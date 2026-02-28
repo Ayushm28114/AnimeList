@@ -96,6 +96,36 @@ export async function updateReview(reviewId, rating, comment) {
   return res.data;
 }
 
+// Vote on a review (like/dislike)
+export async function voteReview(reviewId, voteType) {
+  const res = await api.post(`/reviews/${reviewId}/vote/`, {
+    vote_type: voteType,
+  });
+  return res.data;
+}
+
+// Create a reply to a review
+export async function createReviewReply(reviewId, comment) {
+  const res = await api.post(`/reviews/${reviewId}/replies/`, {
+    comment,
+  });
+  return res.data;
+}
+
+// Delete a review reply
+export async function deleteReviewReply(replyId) {
+  const res = await api.delete(`/review-replies/${replyId}/`);
+  return res.data;
+}
+
+// Update a review reply
+export async function updateReviewReply(replyId, comment) {
+  const res = await api.patch(`/review-replies/${replyId}/`, {
+    comment,
+  });
+  return res.data;
+}
+
 export async function getAnimeCharacters(animeId) {
   return withRetry(async () => {
     const res = await publicApi.get(`/anime/${animeId}/characters/`);

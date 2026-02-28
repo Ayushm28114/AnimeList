@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getAnimeReviews, createReview, deleteReview, updateReview } from '../../services/animeService';
+import { getAnimeReviews, createReview, deleteReview, updateReview, voteReview, createReviewReply, deleteReviewReply } from '../../services/animeService';
 import styles from './AnimeDetailPage.module.css';
 
 export default function ReviewsSection({ animeId }) {
@@ -20,6 +20,11 @@ export default function ReviewsSection({ animeId }) {
   const [editRating, setEditRating] = useState(5);
   const [editComment, setEditComment] = useState('');
   const [editHoverRating, setEditHoverRating] = useState(0);
+
+  // Reply state
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyComment, setReplyComment] = useState('');
+  const [expandedReplies, setExpandedReplies] = useState({});
 
   // Fetch reviews
   const fetchReviews = useCallback(async () => {
@@ -101,6 +106,69 @@ export default function ReviewsSection({ animeId }) {
       console.error('Failed to update review:', err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Handle vote (like/dislike)
+  const handleVote = async (reviewId, voteType) => {
+    if (!isAuthenticated) return;
+    
+    try {
+      await voteReview(reviewId, voteType);
+      fetchReviews(); // Refresh to get updated counts
+    } catch (err) {
+      console.error('Failed to vote:', err);
+    }
+  };
+
+  // Toggle replies visibility
+  const toggleReplies = (reviewId) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [reviewId]: !prev[reviewId]
+    }));
+  };
+
+  // Start replying to a review
+  const handleReplyStart = (reviewId) => {
+    setReplyingTo(reviewId);
+    setReplyComment('');
+  };
+
+  // Cancel replying
+  const handleReplyCancel = () => {
+    setReplyingTo(null);
+    setReplyComment('');
+  };
+
+  // Submit a reply
+  const handleReplySubmit = async (reviewId) => {
+    if (!replyComment.trim()) return;
+
+    setSubmitting(true);
+    try {
+      await createReviewReply(reviewId, replyComment);
+      setReplyingTo(null);
+      setReplyComment('');
+      // Auto-expand replies after adding
+      setExpandedReplies(prev => ({ ...prev, [reviewId]: true }));
+      fetchReviews(); // Refresh reviews
+    } catch (err) {
+      console.error('Failed to create reply:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Delete a reply
+  const handleDeleteReply = async (replyId) => {
+    if (!window.confirm('Are you sure you want to delete this reply?')) return;
+    
+    try {
+      await deleteReviewReply(replyId);
+      fetchReviews();
+    } catch (err) {
+      console.error('Failed to delete reply:', err);
     }
   };
 
@@ -279,21 +347,121 @@ export default function ReviewsSection({ animeId }) {
                     </div>
                     <p className={styles.reviewComment}>{review.comment}</p>
                     
-                    {/* Edit and Delete buttons for user's own review */}
-                    {user?.username === review.user?.username && (
-                      <div className={styles.reviewActions}>
+                    {/* Vote buttons and actions */}
+                    <div className={styles.reviewFooter}>
+                      <div className={styles.voteButtons}>
                         <button 
-                          className={styles.editReviewBtn}
-                          onClick={() => handleEditStart(review)}
+                          className={`${styles.voteBtn} ${styles.likeBtn} ${review.user_vote === 'like' ? styles.active : ''}`}
+                          onClick={() => handleVote(review.id, 'like')}
+                          disabled={!isAuthenticated}
+                          title={isAuthenticated ? 'Like this review' : 'Login to like'}
                         >
-                          ✏️ Edit
+                          👍 <span>{review.likes_count || 0}</span>
                         </button>
                         <button 
-                          className={styles.deleteReviewBtn}
-                          onClick={() => handleDelete(review.id)}
+                          className={`${styles.voteBtn} ${styles.dislikeBtn} ${review.user_vote === 'dislike' ? styles.active : ''}`}
+                          onClick={() => handleVote(review.id, 'dislike')}
+                          disabled={!isAuthenticated}
+                          title={isAuthenticated ? 'Dislike this review' : 'Login to dislike'}
                         >
-                          🗑️ Delete
+                          👎 <span>{review.dislikes_count || 0}</span>
                         </button>
+                        
+                        {/* Reply button */}
+                        <button 
+                          className={styles.replyBtn}
+                          onClick={() => handleReplyStart(review.id)}
+                          disabled={!isAuthenticated}
+                          title={isAuthenticated ? 'Reply to this review' : 'Login to reply'}
+                        >
+                          💬 Reply
+                        </button>
+
+                        {/* Show/hide replies */}
+                        {review.replies && review.replies.length > 0 && (
+                          <button 
+                            className={styles.showRepliesBtn}
+                            onClick={() => toggleReplies(review.id)}
+                          >
+                            {expandedReplies[review.id] ? '▲ Hide' : '▼ Show'} {review.replies.length} {review.replies.length === 1 ? 'reply' : 'replies'}
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Edit and Delete buttons for user's own review */}
+                      {user?.username === review.user?.username && (
+                        <div className={styles.reviewActions}>
+                          <button 
+                            className={styles.editReviewBtn}
+                            onClick={() => handleEditStart(review)}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button 
+                            className={styles.deleteReviewBtn}
+                            onClick={() => handleDelete(review.id)}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Reply form */}
+                    {replyingTo === review.id && (
+                      <div className={styles.replyForm}>
+                        <textarea
+                          className={styles.replyTextarea}
+                          value={replyComment}
+                          onChange={(e) => setReplyComment(e.target.value)}
+                          placeholder="Write a reply..."
+                          rows={2}
+                        />
+                        <div className={styles.replyFormActions}>
+                          <button 
+                            className={styles.submitReplyBtn}
+                            onClick={() => handleReplySubmit(review.id)}
+                            disabled={submitting || !replyComment.trim()}
+                          >
+                            {submitting ? 'Posting...' : 'Post Reply'}
+                          </button>
+                          <button 
+                            className={styles.cancelReplyBtn}
+                            onClick={handleReplyCancel}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Replies list */}
+                    {expandedReplies[review.id] && review.replies && review.replies.length > 0 && (
+                      <div className={styles.repliesList}>
+                        {review.replies.map((reply) => (
+                          <div key={reply.id} className={styles.replyCard}>
+                            <div className={styles.replyHeader}>
+                              <div className={styles.replyUser}>
+                                <div className={styles.replyAvatar}>
+                                  {reply.user?.username?.[0]?.toUpperCase() || '?'}
+                                </div>
+                                <div className={styles.replyUserInfo}>
+                                  <span className={styles.replyUserName}>{reply.user?.username || 'Anonymous'}</span>
+                                  <span className={styles.replyDate}>{formatDate(reply.created_at)}</span>
+                                </div>
+                              </div>
+                              {user?.username === reply.user?.username && (
+                                <button 
+                                  className={styles.deleteReplyBtn}
+                                  onClick={() => handleDeleteReply(reply.id)}
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </div>
+                            <p className={styles.replyComment}>{reply.comment}</p>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </>

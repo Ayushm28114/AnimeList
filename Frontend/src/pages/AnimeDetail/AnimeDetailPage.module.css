@@ -1300,6 +1300,264 @@
   border-color: var(--ad-text-secondary);
 }
 
+/* ========================================
+   REVIEW FOOTER & VOTES
+   ======================================== */
+.reviewFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ad-border);
+  gap: 12px;
+}
+
+.voteButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.voteBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--ad-bg-dark);
+  border: 1px solid var(--ad-border);
+  border-radius: 20px;
+  color: var(--ad-text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voteBtn:hover:not(:disabled) {
+  border-color: var(--ad-text-secondary);
+}
+
+.voteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voteBtn.likeBtn.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--ad-success);
+  color: var(--ad-success);
+}
+
+.voteBtn.dislikeBtn.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--ad-error);
+  color: var(--ad-error);
+}
+
+.replyBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--ad-border);
+  border-radius: 20px;
+  color: var(--ad-text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.replyBtn:hover:not(:disabled) {
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
+}
+
+.replyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.showRepliesBtn {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--ad-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.showRepliesBtn:hover {
+  color: var(--ad-secondary);
+}
+
+/* ========================================
+   REPLY FORM
+   ======================================== */
+.replyForm {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--ad-bg-dark);
+  border-radius: 12px;
+  border: 1px solid var(--ad-border);
+}
+
+.replyTextarea {
+  width: 100%;
+  padding: 12px;
+  background: var(--ad-bg-card);
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  color: var(--ad-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color 0.2s;
+}
+
+.replyTextarea:focus {
+  outline: none;
+  border-color: var(--ad-primary);
+}
+
+.replyTextarea::placeholder {
+  color: var(--ad-text-muted);
+}
+
+.replyFormActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.submitReplyBtn {
+  padding: 8px 16px;
+  background: var(--ad-gradient);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.submitReplyBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.submitReplyBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelReplyBtn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--ad-border);
+  border-radius: 6px;
+  color: var(--ad-text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelReplyBtn:hover {
+  background: var(--ad-bg-card-hover);
+}
+
+/* ========================================
+   REPLIES LIST
+   ======================================== */
+.repliesList {
+  margin-top: 16px;
+  padding-left: 20px;
+  border-left: 2px solid var(--ad-border);
+}
+
+.replyCard {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--ad-bg-dark);
+  border-radius: 8px;
+  border: 1px solid var(--ad-border);
+}
+
+.replyCard:last-child {
+  margin-bottom: 0;
+}
+
+.replyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.replyUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.replyAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ad-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.replyUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.replyUserName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ad-text-primary);
+}
+
+.replyDate {
+  font-size: 0.7rem;
+  color: var(--ad-text-muted);
+}
+
+.replyComment {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ad-text-secondary);
+  margin: 0;
+}
+
+.deleteReplyBtn {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  color: var(--ad-error);
+  font-size: 0.8rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.deleteReplyBtn:hover {
+  opacity: 1;
+}
+
 .noReviews {
   text-align: center;
   padding: 40px 20px;
@@ -1696,6 +1954,71 @@
 
   .editActions {
     flex-direction: column;
+  }
+
+  /* Votes and replies responsive */
+  .reviewFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .voteButtons {
+    width: 100%;
+  }
+
+  .voteBtn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .replyBtn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .showRepliesBtn {
+    font-size: 0.8rem;
+  }
+
+  .replyForm {
+    padding: 12px;
+  }
+
+  .replyTextarea {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+
+  .replyFormActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .submitReplyBtn,
+  .cancelReplyBtn {
+    width: 100%;
+  }
+
+  .repliesList {
+    padding-left: 12px;
+  }
+
+  .replyCard {
+    padding: 10px;
+  }
+
+  .replyAvatar {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .replyUserName {
+    font-size: 0.8rem;
+  }
+
+  .replyComment {
+    font-size: 0.85rem;
   }
 }
 

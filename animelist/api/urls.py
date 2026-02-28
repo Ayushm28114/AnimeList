@@ -2,10 +2,11 @@ from os import name
 from re import search
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, ReviewViewSet, WatchlistViewSet, AnimeProxyView, AnimeCharactersView, AnimeStaffView, AnimeRecommendationsView, AnimeRelationsView, AnimeStatisticsView
+from .views import RegisterView, ReviewViewSet, WatchlistViewSet, AnimeProxyView, AnimeCharactersView, AnimeStaffView, AnimeRecommendationsView, AnimeRelationsView, AnimeStatisticsView, ReviewReplyViewSet
 
 router = DefaultRouter()
 router.register(r'reviews', ReviewViewSet, basename='review')
+router.register(r'review-replies', ReviewReplyViewSet, basename='review-reply')
 router.register(r'watchlist', WatchlistViewSet, basename='watchlist')
 router.register(r'register', RegisterView, basename='register')
 

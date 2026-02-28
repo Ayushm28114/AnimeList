@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from .models import Review, Watchlist
-from .serializers import ReviewSerializer, WatchSerializer, RegisterSerializer
+from .models import Review, Watchlist, ReviewReply, ReviewVote
+from .serializers import ReviewSerializer, WatchSerializer, RegisterSerializer, ReviewReplySerializer, ReviewVoteSerializer
 import requests
 from django.conf import settings
 from rest_framework.views import APIView
@@ -39,10 +39,79 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         return qs
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     def perform_create(self, serializer):
         print("AUTH HEADER:", self.request.headers.get("Authorization"))
         print("USER:", self.request.user)
         serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def vote(self, request, pk=None):
+        """Like or dislike a review"""
+        review = self.get_object()
+        vote_type = request.data.get('vote_type')
+        
+        if vote_type not in ['like', 'dislike']:
+            return Response({'error': 'Invalid vote type'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already voted
+        existing_vote = ReviewVote.objects.filter(review=review, user=request.user).first()
+        
+        if existing_vote:
+            if existing_vote.vote_type == vote_type:
+                # Same vote - remove it (toggle off)
+                existing_vote.delete()
+                return Response({'message': 'Vote removed', 'action': 'removed'})
+            else:
+                # Different vote - update it
+                existing_vote.vote_type = vote_type
+                existing_vote.save()
+                return Response({'message': 'Vote updated', 'action': 'updated', 'vote_type': vote_type})
+        else:
+            # New vote
+            ReviewVote.objects.create(review=review, user=request.user, vote_type=vote_type)
+            return Response({'message': 'Vote added', 'action': 'added', 'vote_type': vote_type})
+
+    @action(detail=True, methods=['get', 'post'], permission_classes=[permissions.IsAuthenticatedOrReadOnly])
+    def replies(self, request, pk=None):
+        """Get or create replies for a review"""
+        review = self.get_object()
+        
+        if request.method == 'GET':
+            replies = review.replies.all()
+            serializer = ReviewReplySerializer(replies, many=True)
+            return Response(serializer.data)
+        
+        elif request.method == 'POST':
+            if not request.user.is_authenticated:
+                return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            serializer = ReviewReplySerializer(data={'review': review.id, 'comment': request.data.get('comment')})
+            if serializer.is_valid():
+                serializer.save(user=request.user, review=review)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReviewReplyViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing review replies"""
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = ReviewReplySerializer
+    queryset = ReviewReply.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        reply = self.get_object()
+        if reply.user != request.user:
+            raise PermissionDenied("You can only delete your own replies")
+        return super().destroy(request, *args, **kwargs)
 
 class WatchlistViewSet(viewsets.ModelViewSet):
     queryset = Watchlist.objects.all()

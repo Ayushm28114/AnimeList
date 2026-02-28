@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Review, Watchlist
+from .models import Review, Watchlist, ReviewReply, ReviewVote
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,13 +8,41 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class ReviewReplySerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
-        model = Review
-        fields = ['id','user', 'anime_id', 'rating', 'comment', 'created_at', 'updated_at']
+        model = ReviewReply
+        fields = ['id', 'review', 'user', 'comment', 'created_at', 'updated_at']
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+
+class ReviewVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewVote
+        fields = ['id', 'review', 'vote_type', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    replies = ReviewReplySerializer(many=True, read_only=True)
+    likes_count = serializers.IntegerField(read_only=True)
+    dislikes_count = serializers.IntegerField(read_only=True)
+    user_vote = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'anime_id', 'rating', 'comment', 'created_at', 'updated_at', 
+                  'replies', 'likes_count', 'dislikes_count', 'user_vote']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at', 'replies', 'likes_count', 'dislikes_count']
+
+    def get_user_vote(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            vote = obj.votes.filter(user=request.user).first()
+            return vote.vote_type if vote else None
+        return None
 
 
 class WatchSerializer(serializers.ModelSerializer):
