@@ -1250,6 +1250,56 @@
   color: white;
 }
 
+.reviewActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.editReviewBtn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--ad-primary);
+  border-radius: 6px;
+  color: var(--ad-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editReviewBtn:hover {
+  background: var(--ad-primary);
+  color: white;
+}
+
+.editReviewForm {
+  width: 100%;
+}
+
+.editActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cancelBtn {
+  padding: 12px 28px;
+  background: transparent;
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  color: var(--ad-text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background: var(--ad-bg-card-hover);
+  border-color: var(--ad-text-secondary);
+}
+
 .noReviews {
   text-align: center;
   padding: 40px 20px;
@@ -1625,6 +1675,27 @@
 
   .reviewComment {
     font-size: 0.9rem;
+  }
+
+  /* Edit review responsive */
+  .reviewActions {
+    gap: 8px;
+  }
+
+  .editReviewBtn,
+  .deleteReviewBtn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .cancelBtn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .editActions {
+    flex-direction: column;
   }
 }
 

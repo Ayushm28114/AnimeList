@@ -88,6 +88,14 @@ export async function deleteReview(reviewId) {
   return res.data;
 }
 
+export async function updateReview(reviewId, rating, comment) {
+  const res = await api.patch(`/reviews/${reviewId}/`, {
+    rating,
+    comment,
+  });
+  return res.data;
+}
+
 export async function getAnimeCharacters(animeId) {
   return withRetry(async () => {
     const res = await publicApi.get(`/anime/${animeId}/characters/`);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getAnimeReviews, createReview, deleteReview } from '../../services/animeService';
+import { getAnimeReviews, createReview, deleteReview, updateReview } from '../../services/animeService';
 import styles from './AnimeDetailPage.module.css';
 
 export default function ReviewsSection({ animeId }) {
@@ -14,6 +14,12 @@ export default function ReviewsSection({ animeId }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
+  
+  // Edit state
+  const [editingReview, setEditingReview] = useState(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState('');
+  const [editHoverRating, setEditHoverRating] = useState(0);
 
   // Fetch reviews
   const fetchReviews = useCallback(async () => {
@@ -64,26 +70,57 @@ export default function ReviewsSection({ animeId }) {
     }
   };
 
-  // Check if user has already reviewed
-  const userReview = reviews.find(r => r.user?.username === user?.username);
+  // Start editing a review
+  const handleEditStart = (review) => {
+    setEditingReview(review.id);
+    setEditRating(review.rating);
+    setEditComment(review.comment);
+  };
+
+  // Cancel editing
+  const handleEditCancel = () => {
+    setEditingReview(null);
+    setEditRating(5);
+    setEditComment('');
+    setEditHoverRating(0);
+  };
+
+  // Save edited review
+  const handleEditSave = async (reviewId) => {
+    if (!editComment.trim()) return;
+
+    setSubmitting(true);
+    try {
+      await updateReview(reviewId, editRating, editComment);
+      setEditingReview(null);
+      setEditRating(5);
+      setEditComment('');
+      setEditHoverRating(0);
+      fetchReviews(); // Refresh reviews
+    } catch (err) {
+      console.error('Failed to update review:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // Render star rating input
-  const renderStarInput = () => {
+  const renderStarInput = (currentRating, currentHover, onRate, onHover, onLeave) => {
     return (
       <div className={styles.starInput}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
           <button
             key={star}
             type="button"
-            className={`${styles.starBtn} ${star <= (hoverRating || rating) ? styles.active : ''}`}
-            onClick={() => setRating(star)}
-            onMouseEnter={() => setHoverRating(star)}
-            onMouseLeave={() => setHoverRating(0)}
+            className={`${styles.starBtn} ${star <= (currentHover || currentRating) ? styles.active : ''}`}
+            onClick={() => onRate(star)}
+            onMouseEnter={() => onHover(star)}
+            onMouseLeave={() => onLeave()}
           >
             ★
           </button>
         ))}
-        <span className={styles.ratingValue}>{hoverRating || rating}/10</span>
+        <span className={styles.ratingValue}>{currentHover || currentRating}/10</span>
       </div>
     );
   };
@@ -119,14 +156,14 @@ export default function ReviewsSection({ animeId }) {
         <h2 className={styles.sectionTitle}>Reviews ({reviews.length})</h2>
       </div>
 
-      {/* Review Form - only show if authenticated and hasn't reviewed yet */}
-      {isAuthenticated && !userReview && (
+      {/* Review Form - show for all authenticated users */}
+      {isAuthenticated && (
         <form className={styles.reviewForm} onSubmit={handleSubmit}>
           <h3 className={styles.reviewFormTitle}>Write a Review</h3>
           
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Your Rating</label>
-            {renderStarInput()}
+            {renderStarInput(rating, hoverRating, setRating, setHoverRating, () => setHoverRating(0))}
           </div>
 
           <div className={styles.formGroup}>
@@ -184,31 +221,82 @@ export default function ReviewsSection({ animeId }) {
           ) : (
             reviews.map((review) => (
               <div key={review.id} className={styles.reviewCard}>
-                <div className={styles.reviewHeader}>
-                  <div className={styles.reviewUser}>
-                    <div className={styles.userAvatar}>
-                      {review.user?.username?.[0]?.toUpperCase() || '?'}
+                {editingReview === review.id ? (
+                  /* Edit Mode */
+                  <div className={styles.editReviewForm}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Update Rating</label>
+                      {renderStarInput(editRating, editHoverRating, setEditRating, setEditHoverRating, () => setEditHoverRating(0))}
                     </div>
-                    <div className={styles.userInfo}>
-                      <span className={styles.userName}>{review.user?.username || 'Anonymous'}</span>
-                      <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
+
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Update Review</label>
+                      <textarea
+                        className={styles.reviewTextarea}
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value)}
+                        placeholder="Update your review..."
+                        rows={4}
+                        required
+                      />
+                    </div>
+
+                    <div className={styles.editActions}>
+                      <button 
+                        type="button" 
+                        className={styles.submitBtn}
+                        onClick={() => handleEditSave(review.id)}
+                        disabled={submitting || !editComment.trim()}
+                      >
+                        {submitting ? 'Saving...' : 'Save Changes'}
+                      </button>
+                      <button 
+                        type="button" 
+                        className={styles.cancelBtn}
+                        onClick={handleEditCancel}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
-                  <div className={styles.reviewRating}>
-                    <span className={styles.reviewStars}>{renderStars(review.rating)}</span>
-                    <span className={styles.reviewScore}>{review.rating}/10</span>
-                  </div>
-                </div>
-                <p className={styles.reviewComment}>{review.comment}</p>
-                
-                {/* Delete button for user's own review */}
-                {user?.username === review.user?.username && (
-                  <button 
-                    className={styles.deleteReviewBtn}
-                    onClick={() => handleDelete(review.id)}
-                  >
-                    🗑️ Delete
-                  </button>
+                ) : (
+                  /* View Mode */
+                  <>
+                    <div className={styles.reviewHeader}>
+                      <div className={styles.reviewUser}>
+                        <div className={styles.userAvatar}>
+                          {review.user?.username?.[0]?.toUpperCase() || '?'}
+                        </div>
+                        <div className={styles.userInfo}>
+                          <span className={styles.userName}>{review.user?.username || 'Anonymous'}</span>
+                          <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
+                        </div>
+                      </div>
+                      <div className={styles.reviewRating}>
+                        <span className={styles.reviewStars}>{renderStars(review.rating)}</span>
+                        <span className={styles.reviewScore}>{review.rating}/10</span>
+                      </div>
+                    </div>
+                    <p className={styles.reviewComment}>{review.comment}</p>
+                    
+                    {/* Edit and Delete buttons for user's own review */}
+                    {user?.username === review.user?.username && (
+                      <div className={styles.reviewActions}>
+                        <button 
+                          className={styles.editReviewBtn}
+                          onClick={() => handleEditStart(review)}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          className={styles.deleteReviewBtn}
+                          onClick={() => handleDelete(review.id)}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))
