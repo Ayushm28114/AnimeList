@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAnimeReviews, createReview, deleteReview, updateReview, voteReview, createReviewReply, deleteReviewReply } from '../../services/animeService';
+import { showToast } from '../../utils/toastHandler';
 import styles from './AnimeDetailPage.module.css';
 
 export default function ReviewsSection({ animeId }) {
@@ -63,15 +64,37 @@ export default function ReviewsSection({ animeId }) {
     }
   };
 
-  // Delete a review
+  // Delete a review (optimistic delete)
   const handleDelete = async (reviewId) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     
+    // Find the review to delete (for potential rollback)
+    const reviewToDelete = reviews.find(r => r.id === reviewId);
+    if (!reviewToDelete) return;
+
+    // Optimistically remove from UI immediately
+    setReviews(prev => prev.filter(r => r.id !== reviewId));
+
     try {
       await deleteReview(reviewId);
-      fetchReviews(); // Refresh reviews
+      // Success - review already removed from UI, nothing else to do
     } catch (err) {
       console.error('Failed to delete review:', err);
+      // Rollback: restore the review to the list
+      setReviews(prev => {
+        // Insert back at original position if possible
+        const originalIndex = reviews.findIndex(r => r.id === reviewId);
+        if (originalIndex === -1) {
+          // Fallback: add to beginning
+          return [reviewToDelete, ...prev];
+        }
+        // Insert at original position
+        const newReviews = [...prev];
+        newReviews.splice(originalIndex, 0, reviewToDelete);
+        return newReviews;
+      });
+      // Show global error toast
+      showToast('Failed to delete review. Please try again.', 'error');
     }
   };
 
