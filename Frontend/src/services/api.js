@@ -2,8 +2,10 @@ import axios from "axios";
 import { showToast } from "../utils/toastHandler";
 import { startLoader, stopLoader } from "../utils/topLoader";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: API_BASE_URL,
 });
 
 let isRefreshing = false;
@@ -94,7 +96,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
 
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/token/refresh/",
+          `${API_BASE_URL}/token/refresh/`,
           { refresh: refreshToken }
         );
 
