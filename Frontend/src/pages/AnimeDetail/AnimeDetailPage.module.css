@@ -36,7 +36,8 @@
 .hero {
   position: relative;
   min-height: 500px;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 10;
 }
 
 .heroBanner {
@@ -75,11 +76,14 @@
   display: flex;
   gap: 40px;
   align-items: flex-start;
+  overflow: visible;
 }
 
 .posterContainer {
   flex-shrink: 0;
   width: 280px;
+  position: relative;
+  z-index: 100;
 }
 
 .poster {
@@ -91,6 +95,188 @@
 
 .poster:hover {
   transform: scale(1.02);
+}
+
+/* ========================================
+   WATCHLIST BUTTON
+   ======================================== */
+.watchlistButtonContainer {
+  position: relative;
+  margin-top: 16px;
+  width: 100%;
+  z-index: 500;
+}
+
+.watchlistBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--ad-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.watchlistBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.watchlistBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.watchlistBtnActive {
+  background: var(--ad-bg-card);
+  border: 2px solid var(--ad-success);
+  color: var(--ad-success);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.watchlistBtnActive:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.watchlistIcon {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.watchlistSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status Dropdown */
+.statusDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--ad-bg-card);
+  border: 1px solid var(--ad-border);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statusDropdownHeader {
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ad-text-muted);
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--ad-border);
+}
+
+.statusOption {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  color: var(--ad-text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.statusOption:hover {
+  background: var(--ad-bg-card-hover);
+  color: var(--ad-primary);
+}
+
+.statusOption:not(:last-child) {
+  border-bottom: 1px solid var(--ad-border);
+}
+
+/* ========================================
+   TOAST NOTIFICATION
+   ======================================== */
+.toast {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--ad-bg-card);
+  border-radius: 12px;
+  border-left: 4px solid var(--ad-success);
+  color: var(--ad-text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  animation: toastSlideIn 0.3s ease;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toastSuccess {
+  border-left-color: var(--ad-success);
+}
+
+.toastSuccess span:first-child {
+  color: var(--ad-success);
+  font-size: 1.1rem;
+}
+
+.toastError {
+  border-left-color: var(--ad-error);
+}
+
+.toastError span:first-child {
+  color: var(--ad-error);
+  font-size: 1.1rem;
 }
 
 .heroInfo {
@@ -224,6 +410,8 @@
    MAIN CONTENT
    ======================================== */
 .mainContent {
+  position: relative;
+  z-index: 1;
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px 60px;
@@ -1622,6 +1810,18 @@
 
   .posterContainer {
     width: 180px;
+  }
+
+  .watchlistBtn {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .toast {
+    top: 70px;
+    right: 16px;
+    left: 16px;
+    font-size: 0.9rem;
   }
 
   .title {

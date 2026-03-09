@@ -118,12 +118,12 @@ export async function deleteReviewReply(replyId) {
   return res.data;
 }
 
-// Update a review reply
-export async function updateReviewReply(replyId, comment) {
-  const res = await api.patch(`/review-replies/${replyId}/`, {
-    comment,
+// Get reviews by user
+export async function getUserReviews(userId) {
+  const res = await api.get("/reviews/", {
+    params: { user_id: userId },
   });
-  return res.data;
+  return res.data.results || [];
 }
 
 export async function getAnimeCharacters(animeId) {

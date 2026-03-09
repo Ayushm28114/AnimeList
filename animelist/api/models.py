@@ -65,12 +65,25 @@ class ReviewVote(models.Model):
 
 class Watchlist(models.Model):
     STATUS_CHOICES = [
-        ('PW', 'Planning to watch'),
-        ('WT', 'Currently Watching'),
-        ('CT', 'Completed'),
-        ('DR', 'Dropped'),
+        ('W', 'Watching'),
+        ('C', 'Completed'),
+        ('PW', 'Plan to Watch'),
+        ('OH', 'On Hold'),
+        ('D', 'Dropped'),
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     anime_id = models.IntegerField()
-    status = models.CharField(max_length=2, choices=STATUS_CHOICES)
+    anime_title = models.CharField(max_length=500, blank=True, null=True)
+    anime_image = models.URLField(max_length=1000, blank=True, null=True)
+    status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='PW')
+    is_favorite = models.BooleanField(default=False)
     added_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'watchlist'
+        unique_together = ['user', 'anime_id']
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.anime_title or self.anime_id} ({self.status})"

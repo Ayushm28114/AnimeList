@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import SectionLoader from '../Components/SectionLoader';
 import SectionError from '../Components/SectionError';
 import './styler.css';
-// import { fetchWatchlist, addToWatchlist, removeFromWatchlist, findWatchlistItem } from "../services/watchlistService";
+import { fetchWatchlist, addToWatchlist, updateWatchlistItem } from "../services/watchlistService";
+import api from "../services/api";
 
 
 function AnimeDetailedPage() {
@@ -45,63 +46,115 @@ function AnimeDetailedPage() {
     const [deletingReview, setDeletingReview] = useState(null);
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [activeTab, setActiveTab] = useState('characters');
-    // const [watchlist, setWatchlist] = useState([]);
-    // const [watchlistLoading, setWatchlistLoading] = useState(true);     
-    // const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);    
+    
+    // Watchlist state
+    const [watchlist, setWatchlist] = useState([]);
+    const [watchlistLoading, setWatchlistLoading] = useState(true);     
+    const [watchlistActionLoading, setWatchlistActionLoading] = useState(false);
+    const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+    const dropdownRef = useRef(null);
 
-    // Watchlist useEffect below this ****
-//     useEffect(() => {
-//   async function loadWatchlist() {
-//     if (!isAuthenticated) {
-//       setWatchlist([]); setWatchlistLoading(false); return;
-//     }
-//     setWatchlistLoading(true);
-//     try {
-//       const wl = await fetchWatchlist();
-//       // if backend returns {results: [...] } adjust accordingly
-//       setWatchlist(Array.isArray(wl) ? wl : (wl.results || []));
-//     } catch (err) {
-//       console.error("Failed to load watchlist", err);
-//     } finally {
-//       setWatchlistLoading(false);
-//     }
-//   }
-//   loadWatchlist();
-// }, [isAuthenticated]);
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowStatusDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-// // helper to check if current anime is in watchlist
-// const currentWatchItem = findWatchlistItem(watchlist, animeId);
+    // Watchlist effect - load user's watchlist
+    useEffect(() => {
+        async function loadWatchlist() {
+            if (!isAuthenticated) {
+                setWatchlist([]); 
+                setWatchlistLoading(false); 
+                return;
+            }
+            setWatchlistLoading(true);
+            try {
+                const wl = await fetchWatchlist();
+                setWatchlist(Array.isArray(wl) ? wl : (wl.results || []));
+            } catch (err) {
+                console.error("Failed to load watchlist", err);
+            } finally {
+                setWatchlistLoading(false);
+            }
+        }
+        loadWatchlist();
+    }, [isAuthenticated]);
 
-// // add/remove handlers
-// const handleAddToWatchlist = async (status = "PTW") => {
-//   if (!isAuthenticated) { alert("Login to add to watchlist"); return; }
-//   setWatchlistActionLoading(true);
-//   try {
-//     const newItem = await addToWatchlist(animeId, status);
-//     // keep UI in sync
-//     setWatchlist(prev =>
-//         prev.some(i => i.anime_id === animeId)
-//             ? prev
-//             : [...prev, newItem]
-//     );
+    // Helper to check if current anime is in watchlist
+    const currentWatchItem = watchlist.find(item => item.anime_id === animeId);
 
-//   } catch (err) {
-//     console.error(err);
-//     alert("Could not add to watchlist");
-//   } finally { setWatchlistActionLoading(false); }
-// };
+    // Add to watchlist handler
+    const handleAddToWatchlist = async (status = "PW") => {
+        if (!isAuthenticated) { 
+            alert("Please login to add to watchlist"); 
+            return; 
+        }
+        setWatchlistActionLoading(true);
+        try {
+            const animeTitle = anime?.title || "";
+            const animeImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || "";
+            const newItem = await addToWatchlist(animeId, status, animeTitle, animeImage);
+            setWatchlist(prev => [...prev, newItem]);
+            setShowStatusDropdown(false);
+        } catch (err) {
+            console.error(err);
+            alert("Could not add to watchlist");
+        } finally { 
+            setWatchlistActionLoading(false); 
+        }
+    };
 
-// const handleRemoveFromWatchlist = async (itemId) => {
-//   if (!isAuthenticated) { alert("Login to remove from watchlist"); return; }
-//   setWatchlistActionLoading(true);
-//   try {
-//     await removeFromWatchlist(itemId);
-//     setWatchlist(prev => prev.filter(i => i.id !== itemId));
-//   } catch (err) {
-//     console.error(err);
-//     alert("Could not remove from watchlist");
-//   } finally { setWatchlistActionLoading(false); }
-// };    
+    // Update watchlist status handler
+    const handleUpdateStatus = async (newStatus) => {
+        if (!currentWatchItem) return;
+        setWatchlistActionLoading(true);
+        try {
+            const updated = await updateWatchlistItem(currentWatchItem.id, { status: newStatus });
+            setWatchlist(prev => prev.map(item => 
+                item.id === currentWatchItem.id ? { ...item, status: updated.status } : item
+            ));
+            setShowStatusDropdown(false);
+        } catch (err) {
+            console.error(err);
+            alert("Could not update status");
+        } finally {
+            setWatchlistActionLoading(false);
+        }
+    };
+
+    // Remove from watchlist handler
+    const handleRemoveFromWatchlist = async () => {
+        if (!currentWatchItem) return;
+        setWatchlistActionLoading(true);
+        try {
+            await api.delete(`/watchlist/${currentWatchItem.id}/`);
+            setWatchlist(prev => prev.filter(item => item.id !== currentWatchItem.id));
+            setShowStatusDropdown(false);
+        } catch (err) {
+            console.error(err);
+            alert("Could not remove from watchlist");
+        } finally {
+            setWatchlistActionLoading(false);
+        }
+    };
+
+    // Get status label
+    const getStatusLabel = (status) => {
+        const labels = {
+            W: "Watching",
+            C: "Completed",
+            PW: "Plan to Watch",
+            OH: "On Hold",
+            D: "Dropped"
+        };
+        return labels[status] || status;
+    };    
 
     // Fetch functions with independent error handling and cleanup
     const fetchAnime = useCallback(async () => {
@@ -484,28 +537,79 @@ function AnimeDetailedPage() {
                             </button>
 
                             {/* WATCHLIST BUTTON */}
-{/* 
-                            {watchlistLoading ? (
-                                <button disabled className="favorite-btn">
-                                    ⏳ Loading...
-                                </button>
-                            ) : currentWatchItem ? (
-                                <button
-                                    className="favorite-btn"
-                                    onClick={() => handleRemoveFromWatchlist(currentWatchItem.id)}
-                                    disabled={watchlistActionLoading}
-                                >
-                                    ❌ Remove from Watchlist ({currentWatchItem.status})
-                                </button>
-                            ) : (
-                                <button
-                                    className="favorite-btn"
-                                    onClick={() => handleAddToWatchlist("PW")}
-                                    disabled={watchlistActionLoading}
-                                >
-                                    ❤️ Add to Watchlist
-                                </button> */}
-                            {/* )} */}
+                            <div className="watchlist-dropdown-container" ref={dropdownRef}>
+                                {!isAuthenticated ? (
+                                    <button 
+                                        className="watchlist-btn add"
+                                        onClick={() => alert('Please login to add anime to your watchlist')}
+                                    >
+                                        ➕ Add to Watchlist
+                                    </button>
+                                ) : watchlistLoading ? (
+                                    <button disabled className="watchlist-btn loading">
+                                        ⏳ Loading...
+                                    </button>
+                                ) : currentWatchItem ? (
+                                    <>
+                                        <button
+                                            className="watchlist-btn in-list"
+                                            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                                            disabled={watchlistActionLoading}
+                                        >
+                                            ✓ {getStatusLabel(currentWatchItem.status)}
+                                            <span className="dropdown-arrow">▼</span>
+                                        </button>
+                                        {showStatusDropdown && (
+                                            <div className="watchlist-dropdown">
+                                                <div className="dropdown-header">Change Status</div>
+                                                {["W", "C", "PW", "OH", "D"].map(status => (
+                                                    <button
+                                                        key={status}
+                                                        className={`dropdown-item ${currentWatchItem.status === status ? 'active' : ''}`}
+                                                        onClick={() => handleUpdateStatus(status)}
+                                                        disabled={watchlistActionLoading}
+                                                    >
+                                                        {getStatusLabel(status)}
+                                                    </button>
+                                                ))}
+                                                <div className="dropdown-divider"></div>
+                                                <button
+                                                    className="dropdown-item remove"
+                                                    onClick={handleRemoveFromWatchlist}
+                                                    disabled={watchlistActionLoading}
+                                                >
+                                                    ✕ Remove from Watchlist
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            className="watchlist-btn add"
+                                            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                                            disabled={watchlistActionLoading}
+                                        >
+                                            ➕ Add to Watchlist
+                                        </button>
+                                        {showStatusDropdown && (
+                                            <div className="watchlist-dropdown">
+                                                <div className="dropdown-header">Select Status</div>
+                                                {["W", "C", "PW", "OH", "D"].map(status => (
+                                                    <button
+                                                        key={status}
+                                                        className="dropdown-item"
+                                                        onClick={() => handleAddToWatchlist(status)}
+                                                        disabled={watchlistActionLoading}
+                                                    >
+                                                        {getStatusLabel(status)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

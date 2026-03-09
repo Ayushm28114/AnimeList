@@ -7,6 +7,13 @@ import {
   getAnimeRelations,
   getAnimeStatistics,
 } from '../../services/animeService';
+import { 
+  fetchWatchlist, 
+  addToWatchlist, 
+  removeFromWatchlist, 
+  findWatchlistItem 
+} from '../../services/watchlistService';
+import { useAuth } from '../../context/AuthContext';
 import { clearQueue } from '../../utils/rateLimiter';
 
 import styles from './AnimeDetailPage.module.css';
@@ -25,6 +32,7 @@ import ReviewsSection from './ReviewsSection';
 export default function AnimeDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const animeId = Number(id);
   const isMountedRef = useRef(true);
 
@@ -32,6 +40,10 @@ export default function AnimeDetailPage() {
   const [anime, setAnime] = useState(null);
   const [loadingAnime, setLoadingAnime] = useState(true);
   const [animeError, setAnimeError] = useState(null);
+
+  // Watchlist state
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
+  const [watchlistItem, setWatchlistItem] = useState(null);
 
   // Characters
   const [characters, setCharacters] = useState([]);
@@ -52,6 +64,67 @@ export default function AnimeDetailPage() {
   const [statistics, setStatistics] = useState(null);
   const [loadingStatistics, setLoadingStatistics] = useState(true);
   const [statisticsError, setStatisticsError] = useState(null);
+
+  // Toast notification
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Fetch watchlist status for this anime
+  const fetchWatchlistStatus = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const data = await fetchWatchlist();
+      if (isMountedRef.current) {
+        const item = findWatchlistItem(data, animeId);
+        setWatchlistItem(item || null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch watchlist:', err);
+    }
+  }, [animeId, isAuthenticated]);
+
+  // Add to watchlist handler
+  const handleAddToWatchlist = async (status = 'PW') => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    setWatchlistLoading(true);
+    try {
+      const animeTitle = anime?.title || '';
+      const animeImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || '';
+      
+      await addToWatchlist(animeId, status, animeTitle, animeImage);
+      await fetchWatchlistStatus();
+      showToast(`Added "${animeTitle}" to your watchlist!`, 'success');
+    } catch (err) {
+      console.error('Failed to add to watchlist:', err);
+      showToast('Failed to add to watchlist. Please try again.', 'error');
+    } finally {
+      setWatchlistLoading(false);
+    }
+  };
+
+  // Remove from watchlist handler
+  const handleRemoveFromWatchlist = async () => {
+    setWatchlistLoading(true);
+    try {
+      await removeFromWatchlist(animeId);
+      setWatchlistItem(null);
+      showToast('Removed from your watchlist', 'success');
+    } catch (err) {
+      console.error('Failed to remove from watchlist:', err);
+      showToast('Failed to remove from watchlist. Please try again.', 'error');
+    } finally {
+      setWatchlistLoading(false);
+    }
+  };
 
   // Fetch main anime details
   const fetchAnime = useCallback(async () => {
@@ -209,12 +282,13 @@ export default function AnimeDetailPage() {
     isMountedRef.current = true;
     
     fetchAllData();
+    fetchWatchlistStatus();
 
     return () => {
       isMountedRef.current = false;
       clearQueue(); // Clear queue on unmount
     };
-  }, [fetchAllData]);
+  }, [fetchAllData, fetchWatchlistStatus]);
 
   // Loading state
   if (loadingAnime) {
@@ -261,8 +335,24 @@ export default function AnimeDetailPage() {
 
   return (
     <div className={styles.pageContainer}>
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}>
+          <span>{toast.type === 'success' ? '✓' : '⚠'}</span>
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* Hero Section */}
-      <AnimeHero anime={anime} />
+      <AnimeHero 
+        anime={anime}
+        isAuthenticated={isAuthenticated}
+        isInWatchlist={!!watchlistItem}
+        watchlistStatus={watchlistItem?.status}
+        onAddToWatchlist={handleAddToWatchlist}
+        onRemoveFromWatchlist={handleRemoveFromWatchlist}
+        watchlistLoading={watchlistLoading}
+      />
 
       {/* Main Content */}
       <div className={styles.mainContent}>

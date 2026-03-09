@@ -1150,6 +1150,131 @@
     font-size: 1.2rem;
 }
 
+/* Watchlist Dropdown Styles */
+.watchlist-dropdown-container {
+    position: relative;
+}
+
+.watchlist-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 0.8rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.watchlist-btn.add {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+
+.watchlist-btn.in-list {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.watchlist-btn.loading {
+    background: rgba(255, 255, 255, 0.1);
+    color: #888;
+    cursor: not-allowed;
+}
+
+.watchlist-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    margin-left: 0.3rem;
+}
+
+.watchlist-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid #2a2a3e;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: #fff;
+}
+
+.dropdown-item.active {
+    background: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.dropdown-item.remove {
+    color: #ef4444;
+}
+
+.dropdown-item.remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #2a2a3e;
+    margin: 0.25rem 0;
+}
+
 /* Section Containers */
 .section-container {
     max-width: 1200px;

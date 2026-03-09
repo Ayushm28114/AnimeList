@@ -52,7 +52,8 @@ class WatchSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Watchlist
-        fields = ['user', 'anime_id', 'status', 'added_at']
+        fields = ['id', 'user', 'anime_id', 'anime_title', 'anime_image', 'status', 'is_favorite', 'added_at', 'updated_at']
+        read_only_fields = ['id', 'added_at', 'updated_at']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

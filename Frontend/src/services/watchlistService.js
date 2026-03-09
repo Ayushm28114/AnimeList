@@ -1,6 +1,4 @@
-// Watchlist service temporarily disabled 
-// Will be re-enabled post-deployment
-
+// Watchlist service for anime tracking
 
 import api from "./api";
 
@@ -9,21 +7,37 @@ export async function fetchWatchlist() {
     return res.data || [];
 }
 
-export async function addToWatchlist(animeId, status = "PW") {
-    const res = await api.post("/watchlist/", { anime_id: animeId, status });
+export async function addToWatchlist(animeId, status = "PW", animeTitle = "", animeImage = "") {
+    const res = await api.post("/watchlist/", { 
+        anime_id: animeId, 
+        status,
+        anime_title: animeTitle,
+        anime_image: animeImage
+    });
     return res.data;
 }
 
 export async function removeFromWatchlist(animeId) {
-    const res = await api.delete(`/watchlist/${animeId}/`);
-    return res.data;
+    // First get the watchlist to find the item id
+    const watchlist = await fetchWatchlist();
+    const item = watchlist.find(w => w.anime_id === Number(animeId));
+    if (item) {
+        const res = await api.delete(`/watchlist/${item.id}/`);
+        return res.data;
+    }
+    throw new Error("Item not found in watchlist");
 }
 
-export async function findWatchlistItem(watchlist, animeId) {
+export function findWatchlistItem(watchlist, animeId) {
     return watchlist?.find(item => item.anime_id === Number(animeId));
 }
 
 export async function updateWatchlistItem(itemId, data) {
-  const res = await api.patch(`/watchlist/${itemId}/`, data);
-  return res.data;
+    const res = await api.patch(`/watchlist/${itemId}/`, data);
+    return res.data;
+}
+
+export async function toggleFavorite(itemId, isFavorite) {
+    const res = await api.patch(`/watchlist/${itemId}/`, { is_favorite: isFavorite });
+    return res.data;
 }

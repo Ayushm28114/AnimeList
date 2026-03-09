@@ -1,6 +1,19 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './AnimeDetailPage.module.css';
 
-export default function AnimeHero({ anime }) {
+export default function AnimeHero({ 
+  anime, 
+  isAuthenticated, 
+  isInWatchlist, 
+  watchlistStatus,
+  onAddToWatchlist, 
+  onRemoveFromWatchlist,
+  watchlistLoading 
+}) {
+  const navigate = useNavigate();
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  
   const bannerImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || '';
   const posterImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || '';
 
@@ -9,6 +22,37 @@ export default function AnimeHero({ anime }) {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toLocaleString();
+  };
+
+  const statusOptions = [
+    { value: 'W', label: 'Watching', icon: '👁️' },
+    { value: 'C', label: 'Completed', icon: '✅' },
+    { value: 'H', label: 'On Hold', icon: '⏸️' },
+    { value: 'D', label: 'Dropped', icon: '❌' },
+    { value: 'PW', label: 'Plan to Watch', icon: '📋' },
+  ];
+
+  const getStatusLabel = (status) => {
+    const option = statusOptions.find(opt => opt.value === status);
+    return option ? `${option.icon} ${option.label}` : '📋 Plan to Watch';
+  };
+
+  const handleStatusSelect = (status) => {
+    onAddToWatchlist(status);
+    setShowStatusDropdown(false);
+  };
+
+  const handleWatchlistClick = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    if (isInWatchlist) {
+      onRemoveFromWatchlist();
+    } else {
+      setShowStatusDropdown(!showStatusDropdown);
+    }
   };
 
   return (
@@ -30,6 +74,49 @@ export default function AnimeHero({ anime }) {
             className={styles.poster}
             loading="lazy"
           />
+          
+          {/* Watchlist Button - Below Poster */}
+          <div className={styles.watchlistButtonContainer}>
+            <button 
+              className={`${styles.watchlistBtn} ${isInWatchlist ? styles.watchlistBtnActive : ''}`}
+              onClick={handleWatchlistClick}
+              disabled={watchlistLoading}
+            >
+              {watchlistLoading ? (
+                <>
+                  <span className={styles.watchlistSpinner}></span>
+                  <span>Loading...</span>
+                </>
+              ) : isInWatchlist ? (
+                <>
+                  <span className={styles.watchlistIcon}>✓</span>
+                  <span>{getStatusLabel(watchlistStatus)}</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.watchlistIcon}>+</span>
+                  <span>Add to Watchlist</span>
+                </>
+              )}
+            </button>
+
+            {/* Status Dropdown */}
+            {showStatusDropdown && !isInWatchlist && (
+              <div className={styles.statusDropdown}>
+                <div className={styles.statusDropdownHeader}>Select Status</div>
+                {statusOptions.map(option => (
+                  <button
+                    key={option.value}
+                    className={styles.statusOption}
+                    onClick={() => handleStatusSelect(option.value)}
+                  >
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Info */}
