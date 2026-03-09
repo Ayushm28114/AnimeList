@@ -20,6 +20,8 @@ import styles from './AnimeDetailPage.module.css';
 import { HeroSkeleton } from './Skeletons';
 import AnimeHero from './AnimeHero';
 import GenreChips from './GenreChips';
+import AnimeInformationPanel from './AnimeInformationPanel';
+import QuickStats from './QuickStats';
 import Synopsis from './Synopsis';
 import TrailerSection from './TrailerSection';
 import ThemeSongs from './ThemeSongs';
@@ -363,8 +365,14 @@ export default function AnimeDetailPage() {
           studios={anime.studios || []} 
         />
 
-        {/* Synopsis */}
+        {/* Synopsis - Most important info first */}
         <Synopsis text={anime.synopsis} />
+
+        {/* Quick Stats Section */}
+        <QuickStats anime={anime} />
+
+        {/* Additional Information Panel */}
+        <AnimeInformationPanel anime={anime} />
 
         {/* Trailer */}
         <TrailerSection trailer={anime.trailer} />

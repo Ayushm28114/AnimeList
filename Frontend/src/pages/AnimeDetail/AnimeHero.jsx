@@ -173,11 +173,7 @@ function AnimeMetaInfo({ anime }) {
     { icon: '📺', label: 'Type', value: anime?.type },
     { icon: '🎬', label: 'Episodes', value: anime?.episodes || '?' },
     { icon: '📡', label: 'Status', value: anime?.status },
-    { icon: '📅', label: 'Aired', value: anime?.aired?.string },
     { icon: '⏱️', label: 'Duration', value: anime?.duration },
-    { icon: '🔞', label: 'Rating', value: anime?.rating },
-    { icon: '🗓️', label: 'Season', value: anime?.season && anime?.year ? `${anime.season} ${anime.year}` : null },
-    { icon: '🏢', label: 'Source', value: anime?.source },
   ].filter(item => item.value);
 
   return (
