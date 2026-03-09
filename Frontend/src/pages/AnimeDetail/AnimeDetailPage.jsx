@@ -105,7 +105,8 @@ export default function AnimeDetailPage() {
       showToast(`Added "${animeTitle}" to your watchlist!`, 'success');
     } catch (err) {
       console.error('Failed to add to watchlist:', err);
-      showToast('Failed to add to watchlist. Please try again.', 'error');
+      // API interceptor already shows toast for errors, so just refresh status
+      await fetchWatchlistStatus();
     } finally {
       setWatchlistLoading(false);
     }

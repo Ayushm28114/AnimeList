@@ -46,13 +46,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class WatchSerializer(serializers.ModelSerializer):
-
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
     class Meta:
         model = Watchlist
-        fields = ['id', 'user', 'anime_id', 'anime_title', 'anime_image', 'status', 'is_favorite', 'added_at', 'updated_at']
+        fields = ['id', 'anime_id', 'anime_title', 'anime_image', 'status', 'is_favorite', 'added_at', 'updated_at']
         read_only_fields = ['id', 'added_at', 'updated_at']
 
 

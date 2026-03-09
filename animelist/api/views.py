@@ -121,6 +121,28 @@ class WatchlistViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        """Override create to handle duplicate entries gracefully"""
+        anime_id = request.data.get('anime_id')
+        
+        # Check if this anime is already in user's watchlist
+        existing = Watchlist.objects.filter(
+            user=request.user, 
+            anime_id=anime_id
+        ).first()
+        
+        if existing:
+            # Update the existing entry instead of creating a duplicate
+            existing.status = request.data.get('status', existing.status)
+            existing.anime_title = request.data.get('anime_title', existing.anime_title)
+            existing.anime_image = request.data.get('anime_image', existing.anime_image)
+            existing.save()
+            serializer = self.get_serializer(existing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        # Create new entry
+        return super().create(request, *args, **kwargs)
+
     def get_queryset(self):
         return Watchlist.objects.filter(user=self.request.user)
 

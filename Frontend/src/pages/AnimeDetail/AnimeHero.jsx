@@ -27,7 +27,7 @@ export default function AnimeHero({
   const statusOptions = [
     { value: 'W', label: 'Watching', icon: '👁️' },
     { value: 'C', label: 'Completed', icon: '✅' },
-    { value: 'H', label: 'On Hold', icon: '⏸️' },
+    { value: 'OH', label: 'On Hold', icon: '⏸️' },
     { value: 'D', label: 'Dropped', icon: '❌' },
     { value: 'PW', label: 'Plan to Watch', icon: '📋' },
   ];
