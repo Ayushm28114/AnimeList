@@ -1,9 +1,68 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { searchAnime } from "../services/animeService";
-import { AnimeCardContainer } from "../Components/AnimeCard";
 import { useSearch } from "../hooks/useSearch";
-// import Posters from "../Components/Posters";
-import "../Components/style.css";
+import styles from "./HomePage.module.css";
+
+// Categories data
+const CATEGORIES = [
+  { id: "action", name: "Action", icon: "⚔️", color: "#ef4444" },
+  { id: "romance", name: "Romance", icon: "💕", color: "#ec4899" },
+  { id: "comedy", name: "Comedy", icon: "😄", color: "#fbbf24" },
+  { id: "adventure", name: "Adventure", icon: "🌍", color: "#22c55e" },
+  { id: "fantasy", name: "Fantasy", icon: "🔮", color: "#8b5cf6" },
+  { id: "sci-fi", name: "Sci-Fi", icon: "🚀", color: "#06b6d4" },
+  { id: "drama", name: "Drama", icon: "🎭", color: "#f97316" },
+  { id: "horror", name: "Horror", icon: "👻", color: "#6366f1" },
+];
+
+// Features data
+const FEATURES = [
+  {
+    icon: "🔍",
+    title: "Smart Search",
+    description: "Find any anime instantly with our powerful search engine powered by Jikan API"
+  },
+  {
+    icon: "📊",
+    title: "Detailed Info",
+    description: "Get comprehensive details, ratings, episodes, and streaming information"
+  },
+  {
+    icon: "❤️",
+    title: "Watchlist",
+    description: "Save your favorite anime to your personal watchlist for later viewing"
+  }
+];
+
+// Anime Card Component
+function AnimeCard({ anime }) {
+  const img = anime.images?.jpg?.image_url || anime.images?.webp?.image_url || "";
+  
+  return (
+    <Link to={`/anime/${anime.mal_id}`} className={styles.animeCard}>
+      <div className={styles.animeCardImage}>
+        {img && <img src={img} alt={anime.title} loading="lazy" />}
+        {anime.score && (
+          <div className={styles.animeCardScore}>
+            <span>★</span> {anime.score}
+          </div>
+        )}
+        <div className={styles.animeCardOverlay}>
+          <span>View Details</span>
+        </div>
+      </div>
+      <div className={styles.animeCardInfo}>
+        <h3 className={styles.animeCardTitle}>{anime.title}</h3>
+        <div className={styles.animeCardMeta}>
+          {anime.type && <span>{anime.type}</span>}
+          {anime.episodes && <span>• {anime.episodes} eps</span>}
+          {anime.year && <span>• {anime.year}</span>}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function HomePage() {
   const { 
@@ -19,7 +78,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Sync input with query from context when component mounts
+  // Sync input with query from context
   useEffect(() => {
     setInputValue(query);
   }, [query]);
@@ -27,16 +86,18 @@ export default function HomePage() {
   const handleSearch = async (e) => {
     e && e.preventDefault();
     if (!inputValue.trim()) return;
+    
     setLoading(true);
     setError(null);
     setQuery(inputValue);
     setHasSearched(true);
+    
     try {
       const data = await searchAnime(inputValue);
       setResults(data || []);
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch anime. Try again.");
+      setError("Failed to fetch anime. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -48,145 +109,190 @@ export default function HomePage() {
     setHasSearched(true);
     setLoading(true);
     setError(null);
+    
     try {
       const data = await searchAnime(category);
       setResults(data || []);
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch anime. Try again.");
+      setError("Failed to fetch anime. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="homepage-container">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1 className="hero-title">
-              Welcome to <span className="gradient-text">AnimeVerse</span>
-            </h1>
-            <p className="hero-subtitle">
-              Discover amazing anime series, explore detailed information, and dive into the captivating world of Japanese animation.
-            </p>
-            <div className="hero-stats">
-              <div className="stat-item">
-                <span className="stat-number">10,000+</span>
-                <span className="stat-label">Anime Series</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">∞</span>
-                <span className="stat-label">Adventures</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">24/7</span>
-                <span className="stat-label">Discovery</span>
+    <div className={styles.pageContainer}>
+      {/* ============ HERO SECTION ============ */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroBackground} />
+        
+        <div className={styles.heroContent}>
+          {/* Tagline */}
+          <div className={styles.heroTagline}>
+            ✨ <span>Premium</span> Anime Discovery Platform
+          </div>
+          
+          {/* Title */}
+          <h1 className={styles.heroTitle}>
+            Discover Your Next{" "}
+            <span className={styles.heroTitleGradient}>Favorite Anime</span>
+          </h1>
+          
+          {/* Subtitle */}
+          <p className={styles.heroSubtitle}>
+            Explore thousands of anime series, get detailed information, 
+            ratings, and build your personal watchlist. Your ultimate 
+            anime companion awaits.
+          </p>
+          
+          {/* Search Form */}
+          <div className={styles.heroSearchContainer}>
+            <form className={styles.heroSearchForm} onSubmit={handleSearch}>
+              <input
+                type="text"
+                className={styles.heroSearchInput}
+                placeholder="Search for anime... (e.g., Naruto, One Piece)"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+              <button 
+                type="submit" 
+                className={styles.heroSearchButton}
+                disabled={loading}
+              >
+                {loading ? "Searching..." : "🔍 Search"}
+              </button>
+            </form>
+          </div>
+          
+          {/* Stats */}
+          <div className={styles.heroStats}>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>25,000+</span>
+              <span className={styles.heroStatLabel}>Anime Titles</span>
+            </div>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>∞</span>
+              <span className={styles.heroStatLabel}>Adventures</span>
+            </div>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>24/7</span>
+              <span className={styles.heroStatLabel}>Discovery</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className={styles.scrollIndicator}>
+          <span>↓</span>
+          Scroll to explore
+        </div>
+      </section>
+
+      {/* ============ CATEGORIES SECTION ============ */}
+      <section className={styles.categoriesSection}>
+        <div className={styles.sectionContainer}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionTitleGroup}>
+              <div className={styles.sectionIcon}>🎭</div>
+              <div>
+                <h2 className={styles.sectionTitle}>Browse by Genre</h2>
+                <p className={styles.sectionSubtitle}>Find anime by your favorite category</p>
               </div>
             </div>
           </div>
-          <div className="hero-decoration">
-            <div className="floating-icons">
-              <div className="icon-item">🎌</div>
-              <div className="icon-item">⚡</div>
-              <div className="icon-item">🌟</div>
-              <div className="icon-item">🎭</div>
-              <div className="icon-item">🗾</div>
+          
+          <div className={styles.categoriesGrid}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                className={styles.categoryChip}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <span className={styles.categoryIcon}>{cat.icon}</span>
+                <span className={styles.categoryName}>{cat.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ SEARCH RESULTS SECTION ============ */}
+      {(loading || error || results.length > 0 || (hasSearched && results.length === 0)) && (
+        <section className={styles.resultsSection}>
+          <div className={styles.sectionContainer}>
+            {/* Loading State */}
+            {loading && (
+              <div className={styles.loadingContainer}>
+                <div className={styles.loadingSpinner} />
+                <p className={styles.loadingText}>Searching for amazing anime...</p>
+              </div>
+            )}
+            
+            {/* Error State */}
+            {error && !loading && (
+              <div className={styles.errorMessage}>
+                <p>⚠️ {error}</p>
+              </div>
+            )}
+            
+            {/* Results */}
+            {!loading && !error && results.length > 0 && (
+              <>
+                <div className={styles.resultsHeader}>
+                  <h2 className={styles.resultsTitle}>
+                    Results for "{query}"
+                    <span className={styles.resultsCount}>{results.length} found</span>
+                  </h2>
+                </div>
+                
+                <div className={styles.resultsGrid}>
+                  {results.map((anime) => (
+                    <AnimeCard key={anime.mal_id} anime={anime} />
+                  ))}
+                </div>
+              </>
+            )}
+            
+            {/* No Results */}
+            {!loading && !error && hasSearched && results.length === 0 && (
+              <div className={styles.noResults}>
+                <div className={styles.noResultsIcon}>🔍</div>
+                <p className={styles.noResultsText}>No anime found for "{query}"</p>
+                <p className={styles.noResultsHint}>
+                  Try searching for popular titles like "Naruto", "One Piece", or "Attack on Titan"
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ============ FEATURES SECTION ============ */}
+      <section className={styles.featuresSection}>
+        <div className={styles.sectionContainer}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionTitleGroup}>
+              <div className={styles.sectionIcon}>⚡</div>
+              <div>
+                <h2 className={styles.sectionTitle}>Why AnimeVerse?</h2>
+                <p className={styles.sectionSubtitle}>Your complete anime discovery toolkit</p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">🔍</div>
-            <h3>Smart Search</h3>
-            <p>Find any anime instantly with our powerful search engine</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📊</div>
-            <h3>Detailed Info</h3>
-            <p>Get comprehensive details, ratings, and episode information</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🎯</div>
-            <h3>Personalized</h3>
-            <p>Discover anime tailored to your preferences and interests</p>
+          
+          <div className={styles.featuresGrid}>
+            {FEATURES.map((feature, idx) => (
+              <div key={idx} className={styles.featureCard}>
+                <div className={styles.featureIcon}>{feature.icon}</div>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDescription}>{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
-      {/* Popular Categories Section */}
-      <section className="categories-section">
-        <h2 className="section-title">Popular Categories</h2>
-        <div className="categories-grid">
-          <div className="category-card" onClick={() => handleCategoryClick("action")}>
-            <div className="category-icon">⚔️</div>
-            <span>Action</span>
-          </div>
-          <div className="category-card" onClick={() => handleCategoryClick("romance")}>
-            <div className="category-icon">💕</div>
-            <span>Romance</span>
-          </div>
-          <div className="category-card" onClick={() => handleCategoryClick("comedy")}>
-            <div className="category-icon">😄</div>
-            <span>Comedy</span>
-          </div>
-          <div className="category-card" onClick={() => handleCategoryClick("adventure")}>
-            <div className="category-icon">🌍</div>
-            <span>Adventure</span>
-          </div>
-          <div className="category-card" onClick={() => handleCategoryClick("fantasy")}>
-            <div className="category-icon">🔮</div>
-            <span>Fantasy</span>
-          </div>
-          <div className="category-card" onClick={() => handleCategoryClick("sci-fi")}>
-            <div className="category-icon">🚀</div>
-            <span>Sci-Fi</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Search Section */}
-      <div className="search-section">
-        <h1>🎌 Discover Your Next Favorite Anime</h1>
-        <p className="search-description">
-          Search through thousands of anime series and find your next binge-worthy adventure!
-        </p>
-        <form className="search-form" onSubmit={handleSearch}>
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Type anime title (e.g., Naruto, One Piece, Attack on Titan)..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <button className="search-button" type="submit">
-            Search
-          </button>
-        </form>
-
-        {loading && <div className="loading-message">Searching for anime...⚡</div>}
-        {error && <div className="error-message">{error}</div>}
-      </div>
-
-      {/* Search Results Section */}
-      {results.length > 0 && (
-        <AnimeCardContainer 
-          animeList={results} 
-          title={`Search Results for "${query}" (${results.length} found)`}
-        />
-      )}
-
-      {/* No Results Message */}
-      {hasSearched && results.length === 0 && !loading && (
-        <div className="no-results">
-          No anime found for "{query}". Try searching for popular titles like "Naruto" or "One Piece"! 🎌
-        </div>
-      )}
     </div>
   );
 }

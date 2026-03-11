@@ -48,7 +48,9 @@ export default function ProfilePage() {
 
   // Fetch user data
   const fetchUserData = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      return;
+    }
     
     setLoading(true);
     try {
@@ -70,8 +72,9 @@ export default function ProfilePage() {
         watchlist: watchlistData.length,
         favorites: watchlistData.filter(w => w.is_favorite).length || 0
       });
-    } catch {
-      // Silently handle errors - user might not have data yet
+    } catch (error) {
+      // Log error for debugging
+      console.error('Error fetching profile data:', error);
       setWatchlist([]);
       setReviews([]);
     } finally {
@@ -82,6 +85,18 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
+
+  // Refetch data when returning to profile page (e.g., after adding to watchlist)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (isAuthenticated) {
+        fetchUserData();
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [isAuthenticated, fetchUserData]);
 
   // Initialize edit form when modal opens
   useEffect(() => {

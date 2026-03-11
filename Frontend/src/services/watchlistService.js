@@ -4,7 +4,9 @@ import api from "./api";
 
 export async function fetchWatchlist() {
     const res = await api.get("/watchlist/");
-    return res.data || [];
+    // Handle both paginated response {results: [...]} and plain array [...]
+    const data = res.data?.results || res.data || [];
+    return Array.isArray(data) ? data : [];
 }
 
 export async function addToWatchlist(animeId, status = "PW", animeTitle = "", animeImage = "") {

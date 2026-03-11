@@ -1,0 +1,719 @@
+/* ========================================
+   MODERN HOMEPAGE - CSS MODULE
+   Premium anime discovery experience
+   ======================================== */
+
+/* CSS Variables */
+:root {
+  --hp-primary: #6366f1;
+  --hp-primary-light: #818cf8;
+  --hp-secondary: #ec4899;
+  --hp-accent: #fbbf24;
+  --hp-bg-dark: #0a0a0f;
+  --hp-bg-card: rgba(20, 20, 35, 0.8);
+  --hp-bg-card-hover: rgba(30, 30, 50, 0.9);
+  --hp-text-primary: #ffffff;
+  --hp-text-secondary: #a0aec0;
+  --hp-text-muted: #64748b;
+  --hp-border: rgba(99, 102, 241, 0.2);
+  --hp-glow: rgba(99, 102, 241, 0.4);
+  --hp-gradient: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #fbbf24 100%);
+}
+
+/* ========================================
+   PAGE CONTAINER
+   ======================================== */
+.pageContainer {
+  min-height: 100vh;
+  background: var(--hp-bg-dark);
+  color: var(--hp-text-primary);
+  overflow-x: hidden;
+}
+
+/* ========================================
+   HERO SECTION - Cinematic Landing
+   ======================================== */
+.heroSection {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.heroBackground::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 60%);
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.heroBackground::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  text-align: center;
+}
+
+.heroTagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: var(--hp-bg-card);
+  border: 1px solid var(--hp-border);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  color: var(--hp-text-secondary);
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.heroTagline span {
+  color: var(--hp-accent);
+}
+
+.heroTitle {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0 0 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.heroTitleGradient {
+  background: var(--hp-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  animation: gradientFlow 4s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+.heroSubtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--hp-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+
+/* Search Bar - Hero */
+.heroSearchContainer {
+  max-width: 650px;
+  margin: 0 auto 3rem;
+}
+
+.heroSearchForm {
+  display: flex;
+  background: var(--hp-bg-card);
+  border: 2px solid var(--hp-border);
+  border-radius: 100px;
+  padding: 6px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(20px);
+}
+
+.heroSearchForm:focus-within {
+  border-color: var(--hp-primary);
+  box-shadow: 0 0 30px var(--hp-glow);
+}
+
+.heroSearchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  color: var(--hp-text-primary);
+  outline: none;
+}
+
+.heroSearchInput::placeholder {
+  color: var(--hp-text-muted);
+}
+
+.heroSearchButton {
+  padding: 16px 32px;
+  background: var(--hp-gradient);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heroSearchButton:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+
+.heroSearchButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Quick Stats */
+.heroStats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.heroStat {
+  text-align: center;
+}
+
+.heroStatValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--hp-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroStatLabel {
+  font-size: 0.85rem;
+  color: var(--hp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Scroll indicator */
+.scrollIndicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--hp-text-muted);
+  font-size: 0.8rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+}
+
+.scrollIndicator span {
+  font-size: 1.5rem;
+}
+
+/* ========================================
+   TRENDING SECTION
+   ======================================== */
+.trendingSection {
+  padding: 4rem 2rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.03) 100%);
+}
+
+.sectionContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hp-gradient);
+  border-radius: 12px;
+  font-size: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  color: var(--hp-text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* ========================================
+   CATEGORY CHIPS
+   ======================================== */
+.categoriesSection {
+  padding: 3rem 2rem;
+}
+
+.categoriesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.categoryChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--hp-bg-card);
+  border: 1px solid var(--hp-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.categoryChip:hover {
+  background: var(--hp-primary);
+  border-color: var(--hp-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.categoryChip:hover .categoryIcon {
+  transform: scale(1.2);
+}
+
+.categoryIcon {
+  font-size: 1.3rem;
+  transition: transform 0.3s ease;
+}
+
+.categoryName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--hp-text-primary);
+}
+
+/* ========================================
+   FEATURES SECTION
+   ======================================== */
+.featuresSection {
+  padding: 5rem 2rem;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: var(--hp-bg-card);
+  border: 1px solid var(--hp-border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.featureCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--hp-gradient);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  border-color: var(--hp-primary);
+  box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
+}
+
+.featureCard:hover::before {
+  transform: scaleX(1);
+}
+
+.featureIcon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hp-gradient);
+  border-radius: 20px;
+  font-size: 2rem;
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover .featureIcon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+
+.featureDescription {
+  color: var(--hp-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ========================================
+   SEARCH RESULTS
+   ======================================== */
+.resultsSection {
+  padding: 3rem 2rem 5rem;
+}
+
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.resultsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resultsCount {
+  padding: 6px 14px;
+  background: var(--hp-primary);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+/* ========================================
+   ANIME CARD (New Design)
+   ======================================== */
+.animeCard {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--hp-bg-card);
+  border: 1px solid var(--hp-border);
+  transition: all 0.4s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.animeCard:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: var(--hp-primary);
+  box-shadow: 0 20px 50px rgba(99, 102, 241, 0.3);
+}
+
+.animeCardImage {
+  position: relative;
+  padding-top: 140%;
+  overflow: hidden;
+}
+
+.animeCardImage img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.animeCard:hover .animeCardImage img {
+  transform: scale(1.1);
+}
+
+.animeCardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 3rem 1rem 1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.animeCard:hover .animeCardOverlay {
+  opacity: 1;
+}
+
+.animeCardScore {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.animeCardScore span {
+  color: var(--hp-accent);
+}
+
+.animeCardInfo {
+  padding: 1rem;
+}
+
+.animeCardTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.animeCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--hp-text-muted);
+}
+
+/* ========================================
+   LOADING & STATES
+   ======================================== */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--hp-border);
+  border-top-color: var(--hp-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  color: var(--hp-text-secondary);
+  font-size: 1rem;
+}
+
+.errorMessage {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 16px;
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.noResults {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--hp-text-secondary);
+}
+
+.noResultsIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.noResultsText {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.noResultsHint {
+  color: var(--hp-text-muted);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+  .heroSection {
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroSearchForm {
+    flex-direction: column;
+    border-radius: 20px;
+    padding: 12px;
+  }
+
+  .heroSearchInput {
+    text-align: center;
+    padding: 14px;
+  }
+
+  .heroSearchButton {
+    width: 100%;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .heroStats {
+    gap: 1.5rem;
+  }
+
+  .heroStatValue {
+    font-size: 1.5rem;
+  }
+
+  .categoriesGrid {
+    gap: 8px;
+  }
+
+  .categoryChip {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .resultsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+
+  .scrollIndicator {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.95rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.4rem;
+  }
+
+  .categoryChip {
+    padding: 8px 14px;
+  }
+
+  .categoryIcon {
+    font-size: 1.1rem;
+  }
+
+  .categoryName {
+    font-size: 0.85rem;
+  }
+}

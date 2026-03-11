@@ -8,13 +8,13 @@
   --ad-primary: #6366f1;
   --ad-primary-dark: #4f46e5;
   --ad-secondary: #ec4899;
-  --ad-bg-dark: #0f0f1a;
-  --ad-bg-card: #1a1a2e;
-  --ad-bg-card-hover: #252540;
+  --ad-bg-dark: rgba(15, 15, 26, 0.9);
+  --ad-bg-card: rgba(26, 26, 46, 0.8);
+  --ad-bg-card-hover: rgba(37, 37, 64, 0.85);
   --ad-text-primary: #ffffff;
   --ad-text-secondary: #a0a0b0;
   --ad-text-muted: #6b6b7b;
-  --ad-border: #2a2a3e;
+  --ad-border: rgba(42, 42, 62, 0.8);
   --ad-success: #10b981;
   --ad-warning: #f59e0b;
   --ad-error: #ef4444;
@@ -26,8 +26,10 @@
    ======================================== */
 .pageContainer {
   min-height: 100vh;
-  background: var(--ad-bg-dark);
+  background: rgba(15, 15, 26, 0.85);
   color: var(--ad-text-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* ========================================
@@ -50,7 +52,7 @@
   background-position: center top;
   filter: blur(20px);
   transform: scale(1.1);
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .heroOverlay {
@@ -61,9 +63,9 @@
   bottom: 0;
   background: linear-gradient(
     to bottom,
-    rgba(15, 15, 26, 0.3) 0%,
-    rgba(15, 15, 26, 0.8) 60%,
-    rgba(15, 15, 26, 1) 100%
+    rgba(15, 15, 26, 0.2) 0%,
+    rgba(15, 15, 26, 0.6) 60%,
+    rgba(15, 15, 26, 0.85) 100%
   );
 }
 
@@ -620,7 +622,7 @@
 .trailerOverlay {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 0;      
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
