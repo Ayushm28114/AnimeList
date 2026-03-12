@@ -49,7 +49,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>© 2025 AnimeVerse. Made with ❤️ by Anime Fans</p>
+        <p>© 2025 AnimeVerse. Made with ❤️ by Ayush</p>
         <div className="footer-bottom-links">
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Service</a>

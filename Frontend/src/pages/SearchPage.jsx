@@ -7,13 +7,19 @@ import SectionError from "../Components/SectionError";
 import "./SearchPage.css";
 
 export default function SearchPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [inputValue, setInputValue] = useState(query);
+
+  // Sync input with URL query
+  useEffect(() => {
+    setInputValue(query);
+  }, [query]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -51,21 +57,77 @@ export default function SearchPage() {
     }
   };
 
+  // Handle search form submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+    setSearchParams({ q: inputValue.trim() });
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    setInputValue(suggestion);
+    setSearchParams({ q: suggestion });
+  };
+
   return (
     <div className="search-page">
       <div className="search-page-header">
         <Link to="/" className="back-link">
           ← Back to Home
         </Link>
+        
         <h1 className="search-page-title">
           {query ? (
             <>
-              Search Results for "<span className="search-query">{query}</span>"
+              Results for "<span className="search-query">{query}</span>"
             </>
           ) : (
             "Search Anime"
           )}
         </h1>
+
+        {/* Search Bar */}
+        <form className="search-page-form" onSubmit={handleSearch}>
+          <div className="search-input-wrapper">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              className="search-page-input"
+              placeholder="Search for anime titles..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              autoFocus
+            />
+            {inputValue && (
+              <button 
+                type="button" 
+                className="clear-btn"
+                onClick={() => setInputValue('')}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <button type="submit" className="search-page-btn" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </form>
+
+        {/* Quick Suggestions */}
+        <div className="quick-suggestions">
+          <span>Popular:</span>
+          {["Naruto", "One Piece", "Attack on Titan", "Demon Slayer", "Jujutsu Kaisen"].map((item) => (
+            <button
+              key={item}
+              className="suggestion-chip"
+              onClick={() => handleSuggestionClick(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
         {hasSearched && !loading && !error && (
           <p className="results-count">
             Found {results.length} result{results.length !== 1 ? "s" : ""}
@@ -74,14 +136,11 @@ export default function SearchPage() {
       </div>
 
       <div className="search-page-content">
-        {!query && (
+        {!query && !hasSearched && (
           <div className="no-query">
-            <div className="no-query-icon">🔍</div>
-            <h2>Start Your Search</h2>
-            <p>Use the search bar in the navigation to find your favorite anime!</p>
-            <Link to="/" className="home-link">
-              Go to Homepage
-            </Link>
+            <div className="no-query-icon">🎌</div>
+            <h2>Discover Amazing Anime</h2>
+            <p>Search for your favorite anime titles using the search bar above!</p>
           </div>
         )}
 

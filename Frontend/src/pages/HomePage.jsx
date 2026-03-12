@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { searchAnime } from "../services/animeService";
-import { useSearch } from "../hooks/useSearch";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./HomePage.module.css";
 
 // Categories data
@@ -35,90 +33,20 @@ const FEATURES = [
   }
 ];
 
-// Anime Card Component
-function AnimeCard({ anime }) {
-  const img = anime.images?.jpg?.image_url || anime.images?.webp?.image_url || "";
-  
-  return (
-    <Link to={`/anime/${anime.mal_id}`} className={styles.animeCard}>
-      <div className={styles.animeCardImage}>
-        {img && <img src={img} alt={anime.title} loading="lazy" />}
-        {anime.score && (
-          <div className={styles.animeCardScore}>
-            <span>★</span> {anime.score}
-          </div>
-        )}
-        <div className={styles.animeCardOverlay}>
-          <span>View Details</span>
-        </div>
-      </div>
-      <div className={styles.animeCardInfo}>
-        <h3 className={styles.animeCardTitle}>{anime.title}</h3>
-        <div className={styles.animeCardMeta}>
-          {anime.type && <span>{anime.type}</span>}
-          {anime.episodes && <span>• {anime.episodes} eps</span>}
-          {anime.year && <span>• {anime.year}</span>}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 export default function HomePage() {
-  const { 
-    query, 
-    setQuery, 
-    results, 
-    setResults, 
-    hasSearched, 
-    setHasSearched 
-  } = useSearch();
-  
-  const [inputValue, setInputValue] = useState(query);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState("");
 
-  // Sync input with query from context
-  useEffect(() => {
-    setInputValue(query);
-  }, [query]);
-
-  const handleSearch = async (e) => {
+  // Navigate to search page
+  const handleSearch = (e) => {
     e && e.preventDefault();
     if (!inputValue.trim()) return;
-    
-    setLoading(true);
-    setError(null);
-    setQuery(inputValue);
-    setHasSearched(true);
-    
-    try {
-      const data = await searchAnime(inputValue);
-      setResults(data || []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch anime. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    navigate(`/search?q=${encodeURIComponent(inputValue.trim())}`);
   };
 
-  const handleCategoryClick = async (category) => {
-    setInputValue(category);
-    setQuery(category);
-    setHasSearched(true);
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const data = await searchAnime(category);
-      setResults(data || []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch anime. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  // Navigate to search page with category
+  const handleCategoryClick = (category) => {
+    navigate(`/search?q=${encodeURIComponent(category)}`);
   };
 
   return (
@@ -159,9 +87,8 @@ export default function HomePage() {
               <button 
                 type="submit" 
                 className={styles.heroSearchButton}
-                disabled={loading}
               >
-                {loading ? "Searching..." : "🔍 Search"}
+                🔍 Search
               </button>
             </form>
           </div>
@@ -217,57 +144,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ============ SEARCH RESULTS SECTION ============ */}
-      {(loading || error || results.length > 0 || (hasSearched && results.length === 0)) && (
-        <section className={styles.resultsSection}>
-          <div className={styles.sectionContainer}>
-            {/* Loading State */}
-            {loading && (
-              <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner} />
-                <p className={styles.loadingText}>Searching for amazing anime...</p>
-              </div>
-            )}
-            
-            {/* Error State */}
-            {error && !loading && (
-              <div className={styles.errorMessage}>
-                <p>⚠️ {error}</p>
-              </div>
-            )}
-            
-            {/* Results */}
-            {!loading && !error && results.length > 0 && (
-              <>
-                <div className={styles.resultsHeader}>
-                  <h2 className={styles.resultsTitle}>
-                    Results for "{query}"
-                    <span className={styles.resultsCount}>{results.length} found</span>
-                  </h2>
-                </div>
-                
-                <div className={styles.resultsGrid}>
-                  {results.map((anime) => (
-                    <AnimeCard key={anime.mal_id} anime={anime} />
-                  ))}
-                </div>
-              </>
-            )}
-            
-            {/* No Results */}
-            {!loading && !error && hasSearched && results.length === 0 && (
-              <div className={styles.noResults}>
-                <div className={styles.noResultsIcon}>🔍</div>
-                <p className={styles.noResultsText}>No anime found for "{query}"</p>
-                <p className={styles.noResultsHint}>
-                  Try searching for popular titles like "Naruto", "One Piece", or "Attack on Titan"
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       {/* ============ FEATURES SECTION ============ */}
       <section className={styles.featuresSection}>

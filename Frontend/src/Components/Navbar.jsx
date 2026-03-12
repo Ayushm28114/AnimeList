@@ -122,8 +122,8 @@ const Navbar = ({isAuthenticated, user, logout}) => {
     }
   };
 
-  // Don't show search bar on homepage (it has its own)
-  const showNavSearch = location.pathname !== '/';
+  // Don't show search bar on homepage (it has its own) and search page
+  const showNavSearch = location.pathname !== '/' && location.pathname !== '/search';
 
   // Close mobile menu when route changes
   useEffect(() => {
