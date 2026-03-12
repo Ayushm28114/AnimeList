@@ -273,7 +273,7 @@ class AnimeRelationsView(APIView):
 
     def get(self, request, anime_id):
         cache_key = f"anime_relations_{anime_id}"
-        data = cache.get(cache_key)
+        data = cache.get(cache_key)h
         if data is None:
             url = f"{self.JIKAN_BASE}/anime/{anime_id}/relations"
             try:
