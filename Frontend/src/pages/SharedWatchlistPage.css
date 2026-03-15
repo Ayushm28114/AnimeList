@@ -1,0 +1,334 @@
+/* ========================================
+   SHARED WATCHLIST PAGE
+   ======================================== */
+
+.shared-watchlist-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+  color: #ffffff;
+  padding-bottom: 2rem;
+}
+
+/* Header */
+.shared-header {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%);
+  padding: 3rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.shared-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+}
+
+.user-info h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.user-info p {
+  color: #a0aec0;
+  margin: 0.5rem 0 0;
+}
+
+/* Stats */
+.shared-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: rgba(20, 20, 35, 0.8);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  min-width: 100px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #6366f1;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Tabs */
+.shared-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  color: #a0aec0;
+  background: rgba(20, 20, 35, 0.6);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.tab-btn.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
+/* Content */
+.shared-content {
+  padding: 0 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.anime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.anime-card {
+  position: relative;
+  background: rgba(20, 20, 35, 0.8);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: white;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.anime-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.anime-poster {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+.status-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 50px;
+  text-transform: uppercase;
+}
+
+.status-badge.watching {
+  background: #3b82f6;
+  color: white;
+}
+
+.status-badge.completed {
+  background: #10b981;
+  color: white;
+}
+
+.status-badge.plan-to-watch {
+  background: #8b5cf6;
+  color: white;
+}
+
+.status-badge.on-hold {
+  background: #f59e0b;
+  color: white;
+}
+
+.status-badge.dropped {
+  background: #ef4444;
+  color: white;
+}
+
+.favorite-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.anime-info {
+  padding: 12px;
+}
+
+.anime-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #a0aec0;
+}
+
+/* Error */
+.shared-error {
+  text-align: center;
+  padding: 6rem 2rem;
+}
+
+.error-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.shared-error h2 {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.shared-error p {
+  color: #a0aec0;
+  margin-bottom: 2rem;
+}
+
+.home-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* Footer */
+.shared-footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #64748b;
+}
+
+.shared-footer a {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.shared-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .shared-header {
+    padding: 2rem 1rem;
+  }
+  
+  .user-info h1 {
+    font-size: 1.4rem;
+  }
+  
+  .shared-stats {
+    padding: 1.5rem 1rem;
+  }
+  
+  .stat-card {
+    min-width: 80px;
+    padding: 0.75rem 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.4rem;
+  }
+  
+  .shared-tabs {
+    padding: 0 1rem;
+  }
+  
+  .tab-btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+  
+  .shared-content {
+    padding: 0 1rem;
+  }
+  
+  .anime-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

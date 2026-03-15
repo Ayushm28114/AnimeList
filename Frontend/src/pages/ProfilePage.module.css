@@ -399,6 +399,62 @@
   transform: scale(1.1);
 }
 
+/* Card Actions Container */
+.cardActions {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.animeCardWrapper:hover .cardActions {
+  opacity: 1;
+}
+
+.cardActions .removeBtn {
+  position: relative;
+  top: auto;
+  left: auto;
+  opacity: 1;
+}
+
+.favoriteBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(30, 30, 50, 0.9);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.favoriteBtn:hover {
+  background: rgba(50, 50, 70, 0.95);
+  transform: scale(1.1);
+}
+
+.favoriteBtn.favorited {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+.favoriteBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  z-index: 5;
+}
+
 .animePoster {
   width: 100%;
   aspect-ratio: 2/3;
@@ -1356,4 +1412,150 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ========================================
+   SHARE WATCHLIST MODAL STYLES
+   ======================================== */
+.shareToggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--profile-bg-dark);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.shareToggleInfo h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--profile-text-primary);
+}
+
+.shareToggleInfo p {
+  font-size: 0.85rem;
+  color: var(--profile-text-secondary);
+  margin: 0;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 56px;
+  height: 30px;
+  background: var(--profile-border);
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggleSwitch.active {
+  background: var(--profile-success);
+}
+
+.toggleSwitch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggleSwitch.active .toggleSlider {
+  transform: translateX(26px);
+}
+
+.shareLinkSection {
+  background: var(--profile-bg-dark);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.shareLinkSection label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--profile-text-secondary);
+  margin-bottom: 8px;
+}
+
+.shareLinkContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.shareLinkInput {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--profile-bg-card);
+  border: 2px solid var(--profile-border);
+  border-radius: 8px;
+  color: var(--profile-text-primary);
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.shareLinkInput:focus {
+  outline: none;
+  border-color: var(--profile-primary);
+}
+
+.copyLinkBtn {
+  padding: 10px 16px;
+  background: var(--profile-primary);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copyLinkBtn:hover {
+  background: var(--profile-primary-dark);
+}
+
+.regenerateBtn {
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px solid var(--profile-border);
+  border-radius: 8px;
+  color: var(--profile-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.regenerateBtn:hover {
+  border-color: var(--profile-warning);
+  color: var(--profile-warning);
+}
+
+.regenerateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.shareHint {
+  font-size: 0.8rem;
+  color: var(--profile-warning);
+  margin: 12px 0 0;
+  text-align: center;
 }

@@ -147,22 +147,18 @@ const Navbar = ({isAuthenticated, user, logout}) => {
         <div className="navbar-brand">
           <Motion.img
             initial={hasAnimated ? false : {
-              x: 0,
-              y: 0,
               scale: 1,
               rotate: 0
             }}
             animate={hasAnimated ? {} : {              
-              x: [0, 350, 0],
-              y:[0, 150, 0],
-              scale:[1, 4, 1],
-              rotate: [0, 360, -360],
+              scale: [1, 1.2, 1],
+              rotate: [0, 360, 0],
             }}
             transition={hasAnimated ? {} : {
-              duration: 8,
+              duration: 2,
               times: [0, 0.5, 1],
-              delay: 1,
-              ease: "backInOut"
+              delay: 0.5,
+              ease: "easeInOut"
             }}
             className="navbar-logo" 
             src={logo} 
@@ -261,7 +257,7 @@ const Navbar = ({isAuthenticated, user, logout}) => {
             {isAuthenticated ? (
               <div className="user-menu">
                 <div className="user-info">
-                  <span className="user-avatar">👤</span>
+                  <span className="user-avatar-icon">{user?.username?.[0]?.toUpperCase() || 'U'}</span>
                   <span className="user-name">Hi, {user?.username || 'User'}</span>
                 </div>
                 <Link className="auth-link profile-link" to="/profile" onClick={() => setMobileMenuOpen(false)}>

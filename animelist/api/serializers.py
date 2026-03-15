@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Review, Watchlist, ReviewReply, ReviewVote
+from .models import Review, Watchlist, ReviewReply, ReviewVote, UserProfile
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,8 +33,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'user', 'anime_id', 'rating', 'comment', 'created_at', 'updated_at', 
-                  'replies', 'likes_count', 'dislikes_count', 'user_vote']
+        fields = ['id', 'user', 'anime_id', 'anime_title', 'anime_image', 'rating', 'comment', 
+                  'created_at', 'updated_at', 'replies', 'likes_count', 'dislikes_count', 'user_vote']
         read_only_fields = ['id', 'user', 'created_at', 'updated_at', 'replies', 'likes_count', 'dislikes_count']
 
     def get_user_vote(self, obj):
@@ -66,4 +66,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+        # Create user profile for sharing feature
+        UserProfile.objects.create(user=user)
         return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'username', 'share_code', 'is_watchlist_public', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'share_code', 'created_at', 'updated_at']
+
+
+class SharedWatchlistSerializer(serializers.ModelSerializer):
+    """Serializer for public shared watchlist (limited fields)"""
+    class Meta:
+        model = Watchlist
+        fields = ['anime_id', 'anime_title', 'anime_image', 'status', 'is_favorite', 'added_at']

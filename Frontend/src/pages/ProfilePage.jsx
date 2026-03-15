@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchWatchlist } from "../services/watchlistService";
+import { fetchWatchlist, toggleFavorite, getSharingSettings, updateSharingSettings, regenerateShareCode } from "../services/watchlistService";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import styles from "./ProfilePage.module.css";
@@ -39,6 +39,14 @@ export default function ProfilePage() {
   const [userBio, setUserBio] = useState(() => {
     return localStorage.getItem("userBio") || "Anime enthusiast exploring different genres and discovering new favorites.";
   });
+
+  // Sharing State
+  const [sharingSettings, setSharingSettings] = useState({
+    isPublic: false,
+    shareCode: null,
+    loading: false
+  });
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Show toast notification
   const showToast = (message, type = "success") => {
@@ -108,9 +116,30 @@ export default function ProfilePage() {
     }
   }, [showEditModal, userBio, user?.email]);
 
+  // Fetch sharing settings
+  useEffect(() => {
+    const fetchSharingSettingsData = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const settings = await getSharingSettings();
+        setSharingSettings({
+          isPublic: settings.is_watchlist_public,
+          shareCode: settings.share_code,
+          loading: false
+        });
+      } catch (error) {
+        console.error("Error fetching sharing settings:", error);
+        setSharingSettings(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchSharingSettingsData();
+  }, [isAuthenticated]);
+
   // Filter watchlist by status
   const getFilteredWatchlist = () => {
     if (activeTab === "all") return watchlist;
+    if (activeTab === "favorites") return watchlist.filter(item => item.is_favorite);
     const statusMap = {
       watching: "W",
       completed: "C",
@@ -124,6 +153,7 @@ export default function ProfilePage() {
   // Get watchlist counts
   const getStatusCount = (status) => {
     if (status === "all") return watchlist.length;
+    if (status === "favorites") return watchlist.filter(item => item.is_favorite).length;
     const statusMap = {
       watching: "W",
       completed: "C",
@@ -132,6 +162,31 @@ export default function ProfilePage() {
       dropped: "D"
     };
     return watchlist.filter(item => item.status === statusMap[status]).length;
+  };
+
+  // Handle toggle favorite
+  const handleToggleFavorite = async (e, itemId, currentFavoriteStatus) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const updated = await toggleFavorite(itemId, !currentFavoriteStatus);
+      setWatchlist(prev => prev.map(item => 
+        item.id === itemId ? { ...item, is_favorite: updated.is_favorite } : item
+      ));
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        favorites: watchlist.filter(w => 
+          w.id === itemId ? !currentFavoriteStatus : w.is_favorite
+        ).length
+      }));
+      showToast(
+        currentFavoriteStatus ? "Removed from favorites" : "Added to favorites", 
+        "success"
+      );
+    } catch {
+      showToast("Failed to update favorite", "error");
+    }
   };
 
   // Handle remove from watchlist
@@ -180,6 +235,44 @@ export default function ProfilePage() {
       localStorage.clear();
       navigate("/");
       showToast("Account deleted successfully", "success");
+    }
+  };
+
+  // Handle sharing toggle
+  const handleSharingToggle = async (isPublic) => {
+    setSharingSettings(prev => ({ ...prev, loading: true }));
+    try {
+      const result = await updateSharingSettings(isPublic);
+      setSharingSettings({
+        isPublic: result.is_watchlist_public,
+        shareCode: result.share_code,
+        loading: false
+      });
+      showToast(isPublic ? "Watchlist sharing enabled!" : "Watchlist sharing disabled", "success");
+    } catch {
+      showToast("Failed to update sharing settings", "error");
+      setSharingSettings(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Handle regenerate share code
+  const handleRegenerateCode = async () => {
+    if (!window.confirm("Are you sure you want to regenerate the share code? This will invalidate the current link.")) {
+      return;
+    }
+    
+    setSharingSettings(prev => ({ ...prev, loading: true }));
+    try {
+      const result = await regenerateShareCode();
+      setSharingSettings(prev => ({
+        ...prev,
+        shareCode: result.share_code,
+        loading: false
+      }));
+      showToast("Share code regenerated successfully!", "success");
+    } catch {
+      showToast("Failed to regenerate share code", "error");
+      setSharingSettings(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -434,13 +527,14 @@ export default function ProfilePage() {
             <div className={styles.sectionContent}>
               {/* Tabs */}
               <div className={styles.watchlistTabs}>
-                {["all", "watching", "completed", "planToWatch", "onHold", "dropped"].map(tab => (
+                {["all", "favorites", "watching", "completed", "planToWatch", "onHold", "dropped"].map(tab => (
                   <button
                     key={tab}
                     className={`${styles.tabBtn} ${activeTab === tab ? styles.active : ""}`}
                     onClick={() => setActiveTab(tab)}
                   >
                     {tab === "all" ? "All" : 
+                     tab === "favorites" ? "❤️ Favorites" :
                      tab === "watching" ? "Watching" :
                      tab === "completed" ? "Completed" :
                      tab === "planToWatch" ? "Plan to Watch" :
@@ -467,17 +561,29 @@ export default function ProfilePage() {
                         <span className={`${styles.animeStatus} ${getStatusClass(item.status)}`}>
                           {getStatusLabel(item.status)}
                         </span>
+                        {item.is_favorite && (
+                          <span className={styles.favoriteBadge}>❤️</span>
+                        )}
                         <div className={styles.animeInfo}>
                           <h3 className={styles.animeTitle}>{item.anime_title || `Anime #${item.anime_id}`}</h3>
                         </div>
                       </Link>
-                      <button 
-                        className={styles.removeBtn}
-                        onClick={(e) => handleRemoveFromWatchlist(e, item.id, item.anime_id)}
-                        title="Remove from watchlist"
-                      >
-                        ✕
-                      </button>
+                      <div className={styles.cardActions}>
+                        <button 
+                          className={`${styles.favoriteBtn} ${item.is_favorite ? styles.favorited : ''}`}
+                          onClick={(e) => handleToggleFavorite(e, item.id, item.is_favorite)}
+                          title={item.is_favorite ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          {item.is_favorite ? '❤️' : '🤍'}
+                        </button>
+                        <button 
+                          className={styles.removeBtn}
+                          onClick={(e) => handleRemoveFromWatchlist(e, item.id, item.anime_id)}
+                          title="Remove from watchlist"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -487,6 +593,8 @@ export default function ProfilePage() {
                   <p className={styles.emptyText}>
                     {activeTab === "all" 
                       ? "Your watchlist is empty. Start exploring anime!"
+                      : activeTab === "favorites" 
+                      ? "No favorites yet. Click the heart icon on any anime to add it!"
                       : `No anime in "${activeTab}" category.`}
                   </p>
                   <Link to="/" className={styles.emptyAction}>
@@ -572,9 +680,28 @@ export default function ProfilePage() {
             </div>
             <div className={styles.sectionContent}>
               <div className={styles.settingsList}>
+                {/* Share Watchlist Setting */}
                 <div className={styles.settingItem}>
                   <div className={styles.settingInfo}>
-                    <div className={styles.settingIcon}>️</div>
+                    <div className={styles.settingIcon}>🔗</div>
+                    <div className={styles.settingDetails}>
+                      <h4>Share Watchlist</h4>
+                      <p>{sharingSettings.isPublic ? "Your watchlist is public" : "Share your watchlist with others"}</p>
+                    </div>
+                  </div>
+                  <button 
+                    className={styles.settingAction}
+                    onClick={() => setShowShareModal(true)}
+                    style={sharingSettings.isPublic ? { borderColor: "#22c55e", color: "#22c55e" } : {}}
+                  >
+                    {sharingSettings.isPublic ? "Sharing On" : "Configure"}
+                  </button>
+                </div>
+                
+                {/* Delete Account Setting */}
+                <div className={styles.settingItem}>
+                  <div className={styles.settingInfo}>
+                    <div className={styles.settingIcon}>⚠️</div>
                     <div className={styles.settingDetails}>
                       <h4>Delete Account</h4>
                       <p>Permanently delete your account</p>
@@ -593,6 +720,73 @@ export default function ProfilePage() {
           </section>
         </div>
       </main>
+
+      {/* Share Watchlist Modal */}
+      {showShareModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowShareModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>🔗 Share My Watchlist</h2>
+              <button className={styles.modalClose} onClick={() => setShowShareModal(false)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.shareToggleContainer}>
+                <div className={styles.shareToggleInfo}>
+                  <h4>Public Watchlist</h4>
+                  <p>{sharingSettings.isPublic 
+                    ? "Your watchlist is currently public. Anyone with the link can view it."
+                    : "Enable to share your watchlist with others via a link."}</p>
+                </div>
+                <button 
+                  className={`${styles.toggleSwitch} ${sharingSettings.isPublic ? styles.active : ""}`}
+                  onClick={() => handleSharingToggle(!sharingSettings.isPublic)}
+                  disabled={sharingSettings.loading}
+                >
+                  <span className={styles.toggleSlider}></span>
+                </button>
+              </div>
+              
+              {sharingSettings.isPublic && sharingSettings.shareCode && (
+                <div className={styles.shareLinkSection}>
+                  <label>Share Link:</label>
+                  <div className={styles.shareLinkContainer}>
+                    <input
+                      type="text"
+                      value={`${window.location.origin}/watchlist/share/${sharingSettings.shareCode}`}
+                      readOnly
+                      className={styles.shareLinkInput}
+                    />
+                    <button 
+                      className={styles.copyLinkBtn}
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/watchlist/share/${sharingSettings.shareCode}`);
+                        showToast("Link copied to clipboard!", "success");
+                      }}
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                  <button 
+                    className={styles.regenerateBtn}
+                    onClick={handleRegenerateCode}
+                    disabled={sharingSettings.loading}
+                  >
+                    🔄 {sharingSettings.loading ? "Regenerating..." : "Generate New Link"}
+                  </button>
+                  <p className={styles.shareHint}>
+                    ⚠️ Regenerating will invalidate the current link.
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowShareModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

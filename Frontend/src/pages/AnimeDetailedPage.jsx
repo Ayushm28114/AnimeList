@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import SectionLoader from '../Components/SectionLoader';
 import SectionError from '../Components/SectionError';
 import './styler.css';
-import { fetchWatchlist, addToWatchlist, updateWatchlistItem } from "../services/watchlistService";
+import { fetchWatchlist, addToWatchlist, updateWatchlistItem, toggleFavorite } from "../services/watchlistService";
 import api from "../services/api";
 
 
@@ -139,6 +139,47 @@ function AnimeDetailedPage() {
         } catch (err) {
             console.error(err);
             alert("Could not remove from watchlist");
+        } finally {
+            setWatchlistActionLoading(false);
+        }
+    };
+
+    // Toggle favorite handler
+    const handleToggleFavorite = async () => {
+        if (!isAuthenticated) {
+            alert("Please login to add favorites");
+            return;
+        }
+        
+        // If not in watchlist, add it first then mark as favorite
+        if (!currentWatchItem) {
+            setWatchlistActionLoading(true);
+            try {
+                const animeTitle = anime?.title || "";
+                const animeImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || "";
+                const newItem = await addToWatchlist(animeId, "PW", animeTitle, animeImage);
+                // Now toggle favorite on the new item
+                const updated = await toggleFavorite(newItem.id, true);
+                setWatchlist(prev => [...prev, { ...newItem, is_favorite: updated.is_favorite }]);
+            } catch (err) {
+                console.error(err);
+                alert("Could not add to favorites");
+            } finally {
+                setWatchlistActionLoading(false);
+            }
+            return;
+        }
+        
+        // Toggle favorite status
+        setWatchlistActionLoading(true);
+        try {
+            const updated = await toggleFavorite(currentWatchItem.id, !currentWatchItem.is_favorite);
+            setWatchlist(prev => prev.map(item => 
+                item.id === currentWatchItem.id ? { ...item, is_favorite: updated.is_favorite } : item
+            ));
+        } catch (err) {
+            console.error(err);
+            alert("Could not update favorite status");
         } finally {
             setWatchlistActionLoading(false);
         }
@@ -304,7 +345,9 @@ function AnimeDetailedPage() {
         setSubmittingReview(true);
         setReviewsError(null);
         try {
-            await createReview(animeId, Number(reviewForm.ratings), reviewForm.text);
+            const animeTitle = anime?.title || "";
+            const animeImage = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || "";
+            await createReview(animeId, Number(reviewForm.ratings), reviewForm.text, animeTitle, animeImage);
             const updated = await getAnimeReviews(animeId);
             if (isMountedRef.current) {
                 setReviews(updated);
@@ -610,6 +653,19 @@ function AnimeDetailedPage() {
                                     </>
                                 )}
                             </div>
+
+                            {/* FAVORITE BUTTON */}
+                            <button
+                                className={`favorite-btn ${currentWatchItem?.is_favorite ? 'favorited' : ''}`}
+                                onClick={handleToggleFavorite}
+                                disabled={watchlistActionLoading}
+                                title={currentWatchItem?.is_favorite ? "Remove from Favorites" : "Add to Favorites"}
+                            >
+                                <span className="favorite-icon">
+                                    {currentWatchItem?.is_favorite ? '❤️' : '🤍'}
+                                </span>
+                                {currentWatchItem?.is_favorite ? 'Favorited' : 'Favorite'}
+                            </button>
                         </div>
                     </div>
                 </div>

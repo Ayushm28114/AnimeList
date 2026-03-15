@@ -3,14 +3,15 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from .models import Review, Watchlist, ReviewReply, ReviewVote
-from .serializers import ReviewSerializer, WatchSerializer, RegisterSerializer, ReviewReplySerializer, ReviewVoteSerializer
+from .models import Review, Watchlist, ReviewReply, ReviewVote, UserProfile
+from .serializers import ReviewSerializer, WatchSerializer, RegisterSerializer, ReviewReplySerializer, ReviewVoteSerializer, UserProfileSerializer, SharedWatchlistSerializer
 import requests
 from django.conf import settings
 from rest_framework.views import APIView
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self,request,view,obj):
@@ -146,6 +147,73 @@ class WatchlistViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Watchlist.objects.filter(user=self.request.user)
 
+    @action(detail=False, methods=['get', 'post'], url_path='sharing')
+    def sharing(self, request):
+        """Get or update sharing settings"""
+        # Get or create user profile
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        
+        if request.method == 'GET':
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+        
+        elif request.method == 'POST':
+            is_public = request.data.get('is_public', False)
+            profile.is_watchlist_public = is_public
+            
+            # Generate share code if enabling sharing and no code exists
+            if is_public and not profile.share_code:
+                profile.generate_share_code()
+            
+            profile.save()
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='regenerate-code')
+    def regenerate_code(self, request):
+        """Regenerate share code"""
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        profile.generate_share_code()
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+
+
+class SharedWatchlistView(APIView):
+    """Public endpoint to view shared watchlists"""
+    permission_classes = [AllowAny]
+
+    def get(self, request, share_code):
+        try:
+            profile = get_object_or_404(UserProfile, share_code=share_code)
+            
+            if not profile.is_watchlist_public:
+                return Response(
+                    {'error': 'This watchlist is not public'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            watchlist = Watchlist.objects.filter(user=profile.user)
+            serializer = SharedWatchlistSerializer(watchlist, many=True)
+            
+            return Response({
+                'username': profile.user.username,
+                'watchlist': serializer.data,
+                'stats': {
+                    'total': watchlist.count(),
+                    'watching': watchlist.filter(status='W').count(),
+                    'completed': watchlist.filter(status='C').count(),
+                    'plan_to_watch': watchlist.filter(status='PW').count(),
+                    'on_hold': watchlist.filter(status='OH').count(),
+                    'dropped': watchlist.filter(status='D').count(),
+                    'favorites': watchlist.filter(is_favorite=True).count(),
+                }
+            })
+        except UserProfile.DoesNotExist:
+            return Response(
+                {'error': 'Watchlist not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class AnimeProxyView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -177,19 +245,58 @@ class AnimeProxyView(APIView):
             return Response(data)
 
         else:
-            q=request.query_params.get('q','')
-            page=request.query_params.get('page','1')
-            cache_key = f"anime_search_{q}_{page}"
+            # Advanced search with filters
+            q = request.query_params.get('q', '')
+            page = request.query_params.get('page', '1')
+            limit = request.query_params.get('limit', '25')  # Max 25 per Jikan API
+            
+            # Advanced filter parameters
+            min_score = request.query_params.get('min_score', '')
+            anime_type = request.query_params.get('type', '')
+            anime_status = request.query_params.get('status', '')
+            rating = request.query_params.get('rating', '')
+            start_year = request.query_params.get('start_year', '')
+            order_by = request.query_params.get('order_by', '')
+            sort = request.query_params.get('sort', 'desc')
+            
+            # Build cache key with all params
+            cache_key = f"anime_search_{q}_{page}_{limit}_{min_score}_{anime_type}_{anime_status}_{rating}_{start_year}_{order_by}_{sort}"
             data = cache.get(cache_key)
 
             if data is None:
                 url = f"{self.JIKAN_BASE}/anime"
-                params = {'q':q, 'page':page
-                          , 'sfw' : 'true', 'genres_exclude': 'Hentai,Erotica,Ecchi,Adult,Yaoi,Yuri,Harem'
-                          }
-                resp= requests.get(url, params=params)
-                data = resp.json()
-                cache.set(cache_key, data, timeout=60*5)
+                params = {
+                    'q': q, 
+                    'page': page,
+                    'limit': limit,  # Add limit parameter
+                    'sfw': 'true', 
+                    'genres_exclude': '12,26,28,58,65,81'  # Exclude adult genres by ID
+                }
+                
+                # Add optional filter params
+                if min_score:
+                    params['min_score'] = min_score
+                if anime_type:
+                    params['type'] = anime_type
+                if anime_status:
+                    params['status'] = anime_status
+                if rating:
+                    params['rating'] = rating
+                if start_year:
+                    params['start_date'] = f"{start_year}-01-01"
+                if order_by:
+                    params['order_by'] = order_by
+                    params['sort'] = sort
+                
+                try:
+                    resp = requests.get(url, params=params, timeout=10)
+                    data = resp.json()
+                    if resp.status_code == 200:
+                        cache.set(cache_key, data, timeout=60*5)
+                    elif resp.status_code == 429:
+                        return Response({'error': 'Rate limited'}, status=429)
+                except requests.exceptions.RequestException:
+                    return Response({'error': 'Failed to search anime'}, status=503)
 
             return Response(data)
 

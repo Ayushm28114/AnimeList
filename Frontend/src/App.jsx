@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import AnimeDetailPage from "./pages/AnimeDetail";
 import SearchPage from "./pages/SearchPage";
+import SharedWatchlistPage from "./pages/SharedWatchlistPage";
 import { useAuth } from "./context/AuthContext";
 import React from 'react';
 import Navbar from './Components/Navbar';
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/watchlist/share/:shareCode" element={<SharedWatchlistPage />} />
           
         </Routes>
       </main>

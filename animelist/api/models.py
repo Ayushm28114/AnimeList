@@ -6,6 +6,8 @@ from django.db import models
 class Review(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     anime_id = models.IntegerField()
+    anime_title = models.CharField(max_length=500, blank=True, null=True)
+    anime_image = models.URLField(max_length=1000, blank=True, null=True)
     rating = models.SmallIntegerField()
     comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,7 +18,7 @@ class Review(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.user} - {self.anime_id} - Rating : {self.rating}/10"
+        return f"{self.user} - {self.anime_title or self.anime_id} - Rating : {self.rating}/10"
     
     @property
     def likes_count(self):
@@ -63,6 +65,9 @@ class ReviewVote(models.Model):
 
 
 
+import uuid
+
+
 class Watchlist(models.Model):
     STATUS_CHOICES = [
         ('W', 'Watching'),
@@ -87,3 +92,23 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.anime_title or self.anime_id} ({self.status})"
+
+
+class UserProfile(models.Model):
+    """Extended user profile for sharing settings"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    share_code = models.CharField(max_length=32, unique=True, blank=True, null=True)
+    is_watchlist_public = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'user_profiles'
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+
+    def generate_share_code(self):
+        self.share_code = uuid.uuid4().hex[:16]
+        self.save()
+        return self.share_code

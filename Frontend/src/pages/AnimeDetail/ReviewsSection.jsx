@@ -4,7 +4,7 @@ import { getAnimeReviews, createReview, deleteReview, updateReview, voteReview, 
 import { showToast } from '../../utils/toastHandler';
 import styles from './AnimeDetailPage.module.css';
 
-export default function ReviewsSection({ animeId }) {
+export default function ReviewsSection({ animeId, animeTitle = '', animeImage = '' }) {
   const { user, isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);

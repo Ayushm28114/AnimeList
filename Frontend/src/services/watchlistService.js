@@ -1,6 +1,7 @@
 // Watchlist service for anime tracking
 
 import api from "./api";
+import publicApi from "./publicApi";
 
 export async function fetchWatchlist() {
     const res = await api.get("/watchlist/");
@@ -41,5 +42,27 @@ export async function updateWatchlistItem(itemId, data) {
 
 export async function toggleFavorite(itemId, isFavorite) {
     const res = await api.patch(`/watchlist/${itemId}/`, { is_favorite: isFavorite });
+    return res.data;
+}
+
+// ==================== SHARING FEATURES ====================
+
+export async function getSharingSettings() {
+    const res = await api.get("/watchlist/sharing/");
+    return res.data;
+}
+
+export async function updateSharingSettings(isPublic) {
+    const res = await api.post("/watchlist/sharing/", { is_public: isPublic });
+    return res.data;
+}
+
+export async function regenerateShareCode() {
+    const res = await api.post("/watchlist/regenerate-code/");
+    return res.data;
+}
+
+export async function getSharedWatchlist(shareCode) {
+    const res = await publicApi.get(`/shared/${shareCode}/`);
     return res.data;
 }

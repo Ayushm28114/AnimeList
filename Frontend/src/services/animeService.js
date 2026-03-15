@@ -38,7 +38,25 @@ async function withRetry(requestFn, maxRetries = 3) {
   throw lastError;
 }
 
-export async function searchAnime(query) {
+export async function searchAnime(query, filters = {}) {
+  const params = { q: query, limit: 24 };  // Request 24 results per page
+  
+  // Add advanced filter params if provided
+  if (filters.minScore) params.min_score = filters.minScore;
+  if (filters.type) params.type = filters.type;
+  if (filters.status) params.status = filters.status;
+  if (filters.rating) params.rating = filters.rating;
+  if (filters.startYear) params.start_year = filters.startYear;
+  if (filters.orderBy) params.order_by = filters.orderBy;
+  if (filters.sort) params.sort = filters.sort;
+  if (filters.page) params.page = filters.page;
+
+  const res = await publicApi.get("/anime/search/", { params });
+  return res.data;
+}
+
+// Simple search for suggestions (no filters)
+export async function searchAnimeSimple(query) {
   const res = await publicApi.get("/anime/search/", {
     params: { q: query },
   });
@@ -74,11 +92,13 @@ export async function getAnimeReviews(animeId) {
   return res.data.results || [];
 }
 
-export async function createReview(animeId, rating, comment) {
+export async function createReview(animeId, rating, comment, animeTitle = '', animeImage = '') {
   const res = await api.post("/reviews/", {
     anime_id: animeId,
     rating,
     comment,
+    anime_title: animeTitle,
+    anime_image: animeImage,
   });
   return res.data;
 }
