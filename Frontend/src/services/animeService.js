@@ -85,11 +85,15 @@ export async function getAnimeDetails(animeId) {
   return res.data.data;
 }
 
-export async function getAnimeReviews(animeId) {
+export async function getAnimeReviews(animeId, page = 1, limit = 10) {
   const res = await publicApi.get("/reviews/", {
-    params: { anime_id: animeId },
+    params: { anime_id: animeId, page, limit },
   });
-  return res.data.results || [];
+  // Return both results and pagination so caller can implement pagination/infinite scroll
+  return {
+    results: res.data.results || [],
+    pagination: res.data.pagination || {}
+  };
 }
 
 export async function createReview(animeId, rating, comment, animeTitle = '', animeImage = '') {

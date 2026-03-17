@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAnimeReviews, createReview, deleteReview, updateReview, voteReview, createReviewReply, deleteReviewReply } from '../../services/animeService';
 import { showToast } from '../../utils/toastHandler';
@@ -27,24 +27,75 @@ export default function ReviewsSection({ animeId, animeTitle = '', animeImage = 
   const [replyComment, setReplyComment] = useState('');
   const [expandedReplies, setExpandedReplies] = useState({});
 
-  // Fetch reviews
-  const fetchReviews = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // Pagination / infinite scroll state
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(10); // reviews per page
+  const [hasNext, setHasNext] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreRef = useRef(null);
+
+  // Fetch reviews (supports pagination)
+  const fetchReviews = useCallback(async (pageArg = 1, append = false) => {
+    if (!animeId) return;
+    if (pageArg === 1) {
+      setLoading(true);
+      setError(null);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
-      const data = await getAnimeReviews(animeId);
-      setReviews(data);
+      const data = await getAnimeReviews(animeId, pageArg, perPage);
+      const results = data.results || [];
+      const pagination = data.pagination || {};
+
+      // Update list either replace (page 1) or append
+      setReviews(prev => (append ? [...prev, ...results] : results));
+
+      // Determine hasNext from pagination data if available, otherwise infer
+      let computedHasNext = false;
+      if (pagination.has_next_page !== undefined) {
+        computedHasNext = pagination.has_next_page;
+      } else if (pagination.items && typeof pagination.items.total === 'number') {
+        computedHasNext = (pageArg * perPage) < pagination.items.total;
+      } else {
+        // Fallback: if results length equals requested perPage, assume there might be more
+        computedHasNext = results.length === perPage;
+      }
+
+      setHasNext(computedHasNext);
+      setPage(pageArg);
     } catch (err) {
       console.error('Failed to load reviews:', err);
       setError('Failed to load reviews');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [animeId]);
+  }, [animeId, perPage]);
 
   useEffect(() => {
-    fetchReviews();
+    // initial load
+    fetchReviews(1, false);
   }, [fetchReviews]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    if (!hasNext) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !loadingMore) {
+          // load next page
+          fetchReviews(page + 1, true);
+        }
+      });
+    }, { root: null, rootMargin: '200px', threshold: 0.1 });
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [loadMoreRef, hasNext, loadingMore, page, fetchReviews]);
 
   // Submit a new review
   const handleSubmit = async (e) => {
@@ -53,12 +104,15 @@ export default function ReviewsSection({ animeId, animeTitle = '', animeImage = 
 
     setSubmitting(true);
     try {
-      await createReview(animeId, rating, comment);
+      // include anime title and image when creating a review
+      await createReview(animeId, rating, comment, animeTitle, animeImage);
       setComment('');
       setRating(5);
       fetchReviews(); // Refresh reviews
+      showToast('Review submitted', 'success');
     } catch (err) {
       console.error('Failed to create review:', err);
+      showToast('Failed to submit review. Please try again.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -310,187 +364,202 @@ export default function ReviewsSection({ animeId, animeTitle = '', animeImage = 
               <p>No reviews yet. Be the first to review this anime!</p>
             </div>
           ) : (
-            reviews.map((review) => (
-              <div key={review.id} className={styles.reviewCard}>
-                {editingReview === review.id ? (
-                  /* Edit Mode */
-                  <div className={styles.editReviewForm}>
-                    <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Update Rating</label>
-                      {renderStarInput(editRating, editHoverRating, setEditRating, setEditHoverRating, () => setEditHoverRating(0))}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>Update Review</label>
-                      <textarea
-                        className={styles.reviewTextarea}
-                        value={editComment}
-                        onChange={(e) => setEditComment(e.target.value)}
-                        placeholder="Update your review..."
-                        rows={4}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.editActions}>
-                      <button 
-                        type="button" 
-                        className={styles.submitBtn}
-                        onClick={() => handleEditSave(review.id)}
-                        disabled={submitting || !editComment.trim()}
-                      >
-                        {submitting ? 'Saving...' : 'Save Changes'}
-                      </button>
-                      <button 
-                        type="button" 
-                        className={styles.cancelBtn}
-                        onClick={handleEditCancel}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* View Mode */
-                  <>
-                    <div className={styles.reviewHeader}>
-                      <div className={styles.reviewUser}>
-                        <div className={styles.userAvatar}>
-                          {review.user?.username?.[0]?.toUpperCase() || '?'}
-                        </div>
-                        <div className={styles.userInfo}>
-                          <span className={styles.userName}>{review.user?.username || 'Anonymous'}</span>
-                          <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
-                        </div>
+            <>
+              {reviews.map((review) => (
+                <div key={review.id} className={styles.reviewCard}>
+                  {editingReview === review.id ? (
+                    /* Edit Mode */
+                    <div className={styles.editReviewForm}>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Update Rating</label>
+                        {renderStarInput(editRating, editHoverRating, setEditRating, setEditHoverRating, () => setEditHoverRating(0))}
                       </div>
-                      <div className={styles.reviewRating}>
-                        <span className={styles.reviewStars}>{renderStars(review.rating)}</span>
-                        <span className={styles.reviewScore}>{review.rating}/10</span>
+
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Update Review</label>
+                        <textarea
+                          className={styles.reviewTextarea}
+                          value={editComment}
+                          onChange={(e) => setEditComment(e.target.value)}
+                          placeholder="Update your review..."
+                          rows={4}
+                          required
+                        />
+                      </div>
+
+                      <div className={styles.editActions}>
+                        <button 
+                          type="button" 
+                          className={styles.submitBtn}
+                          onClick={() => handleEditSave(review.id)}
+                          disabled={submitting || !editComment.trim()}
+                        >
+                          {submitting ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button 
+                          type="button" 
+                          className={styles.cancelBtn}
+                          onClick={handleEditCancel}
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </div>
-                    <p className={styles.reviewComment}>{review.comment}</p>
-                    
-                    {/* Vote buttons and actions */}
-                    <div className={styles.reviewFooter}>
-                      <div className={styles.voteButtons}>
-                        <button 
-                          className={`${styles.voteBtn} ${styles.likeBtn} ${review.user_vote === 'like' ? styles.active : ''}`}
-                          onClick={() => handleVote(review.id, 'like')}
-                          disabled={!isAuthenticated}
-                          title={isAuthenticated ? 'Like this review' : 'Login to like'}
-                        >
-                          👍 <span>{review.likes_count || 0}</span>
-                        </button>
-                        <button 
-                          className={`${styles.voteBtn} ${styles.dislikeBtn} ${review.user_vote === 'dislike' ? styles.active : ''}`}
-                          onClick={() => handleVote(review.id, 'dislike')}
-                          disabled={!isAuthenticated}
-                          title={isAuthenticated ? 'Dislike this review' : 'Login to dislike'}
-                        >
-                          👎 <span>{review.dislikes_count || 0}</span>
-                        </button>
-                        
-                        {/* Reply button */}
-                        <button 
-                          className={styles.replyBtn}
-                          onClick={() => handleReplyStart(review.id)}
-                          disabled={!isAuthenticated}
-                          title={isAuthenticated ? 'Reply to this review' : 'Login to reply'}
-                        >
-                          💬 Reply
-                        </button>
-
-                        {/* Show/hide replies */}
-                        {review.replies && review.replies.length > 0 && (
+                  ) : (
+                    /* View Mode */
+                    <>
+                      <div className={styles.reviewHeader}>
+                        <div className={styles.reviewUser}>
+                          <div className={styles.userAvatar}>
+                            {review.user?.username?.[0]?.toUpperCase() || '?'}
+                          </div>
+                          <div className={styles.userInfo}>
+                            <span className={styles.userName}>{review.user?.username || 'Anonymous'}</span>
+                            <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
+                          </div>
+                        </div>
+                        <div className={styles.reviewRating}>
+                          <span className={styles.reviewStars}>{renderStars(review.rating)}</span>
+                          <span className={styles.reviewScore}>{review.rating}/10</span>
+                        </div>
+                      </div>
+                      <p className={styles.reviewComment}>{review.comment}</p>
+                      
+                      {/* Vote buttons and actions */}
+                      <div className={styles.reviewFooter}>
+                        <div className={styles.voteButtons}>
                           <button 
-                            className={styles.showRepliesBtn}
-                            onClick={() => toggleReplies(review.id)}
+                            className={`${styles.voteBtn} ${styles.likeBtn} ${review.user_vote === 'like' ? styles.active : ''}`}
+                            onClick={() => handleVote(review.id, 'like')}
+                            disabled={!isAuthenticated}
+                            title={isAuthenticated ? 'Like this review' : 'Login to like'}
                           >
-                            {expandedReplies[review.id] ? '▲ Hide' : '▼ Show'} {review.replies.length} {review.replies.length === 1 ? 'reply' : 'replies'}
+                            👍 <span>{review.likes_count || 0}</span>
                           </button>
+                          <button 
+                            className={`${styles.voteBtn} ${styles.dislikeBtn} ${review.user_vote === 'dislike' ? styles.active : ''}`}
+                            onClick={() => handleVote(review.id, 'dislike')}
+                            disabled={!isAuthenticated}
+                            title={isAuthenticated ? 'Dislike this review' : 'Login to dislike'}
+                          >
+                            👎 <span>{review.dislikes_count || 0}</span>
+                          </button>
+                          
+                          {/* Reply button */}
+                          <button 
+                            className={styles.replyBtn}
+                            onClick={() => handleReplyStart(review.id)}
+                            disabled={!isAuthenticated}
+                            title={isAuthenticated ? 'Reply to this review' : 'Login to reply'}
+                          >
+                            💬 Reply
+                          </button>
+
+                          {/* Show/hide replies */}
+                          {review.replies && review.replies.length > 0 && (
+                            <button 
+                              className={styles.showRepliesBtn}
+                              onClick={() => toggleReplies(review.id)}
+                            >
+                              {expandedReplies[review.id] ? '▲ Hide' : '▼ Show'} {review.replies.length} {review.replies.length === 1 ? 'reply' : 'replies'}
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Edit and Delete buttons for user's own review */}
+                        {user?.username === review.user?.username && (
+                          <div className={styles.reviewActions}>
+                            <button 
+                              className={styles.editReviewBtn}
+                              onClick={() => handleEditStart(review)}
+                            >
+                              ✏️ Edit
+                            </button>
+                            <button 
+                              className={styles.deleteReviewBtn}
+                              onClick={() => handleDelete(review.id)}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
                         )}
                       </div>
-                      
-                      {/* Edit and Delete buttons for user's own review */}
-                      {user?.username === review.user?.username && (
-                        <div className={styles.reviewActions}>
-                          <button 
-                            className={styles.editReviewBtn}
-                            onClick={() => handleEditStart(review)}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button 
-                            className={styles.deleteReviewBtn}
-                            onClick={() => handleDelete(review.id)}
-                          >
-                            🗑️ Delete
-                          </button>
+
+                      {/* Reply form */}
+                      {replyingTo === review.id && (
+                        <div className={styles.replyForm}>
+                          <textarea
+                            className={styles.replyTextarea}
+                            value={replyComment}
+                            onChange={(e) => setReplyComment(e.target.value)}
+                            placeholder="Write a reply..."
+                            rows={2}
+                          />
+                          <div className={styles.replyFormActions}>
+                            <button 
+                              className={styles.submitReplyBtn}
+                              onClick={() => handleReplySubmit(review.id)}
+                              disabled={submitting || !replyComment.trim()}
+                            >
+                              {submitting ? 'Posting...' : 'Post Reply'}
+                            </button>
+                            <button 
+                              className={styles.cancelReplyBtn}
+                              onClick={handleReplyCancel}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       )}
-                    </div>
 
-                    {/* Reply form */}
-                    {replyingTo === review.id && (
-                      <div className={styles.replyForm}>
-                        <textarea
-                          className={styles.replyTextarea}
-                          value={replyComment}
-                          onChange={(e) => setReplyComment(e.target.value)}
-                          placeholder="Write a reply..."
-                          rows={2}
-                        />
-                        <div className={styles.replyFormActions}>
-                          <button 
-                            className={styles.submitReplyBtn}
-                            onClick={() => handleReplySubmit(review.id)}
-                            disabled={submitting || !replyComment.trim()}
-                          >
-                            {submitting ? 'Posting...' : 'Post Reply'}
-                          </button>
-                          <button 
-                            className={styles.cancelReplyBtn}
-                            onClick={handleReplyCancel}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Replies list */}
-                    {expandedReplies[review.id] && review.replies && review.replies.length > 0 && (
-                      <div className={styles.repliesList}>
-                        {review.replies.map((reply) => (
-                          <div key={reply.id} className={styles.replyCard}>
-                            <div className={styles.replyHeader}>
-                              <div className={styles.replyUser}>
-                                <div className={styles.replyAvatar}>
-                                  {reply.user?.username?.[0]?.toUpperCase() || '?'}
+                      {/* Replies list */}
+                      {expandedReplies[review.id] && review.replies && review.replies.length > 0 && (
+                        <div className={styles.repliesList}>
+                          {review.replies.map((reply) => (
+                            <div key={reply.id} className={styles.replyCard}>
+                              <div className={styles.replyHeader}>
+                                <div className={styles.replyUser}>
+                                  <div className={styles.replyAvatar}>
+                                    {reply.user?.username?.[0]?.toUpperCase() || '?'}
+                                  </div>
+                                  <div className={styles.replyUserInfo}>
+                                    <span className={styles.replyUserName}>{reply.user?.username || 'Anonymous'}</span>
+                                    <span className={styles.replyDate}>{formatDate(reply.created_at)}</span>
+                                  </div>
                                 </div>
-                                <div className={styles.replyUserInfo}>
-                                  <span className={styles.replyUserName}>{reply.user?.username || 'Anonymous'}</span>
-                                  <span className={styles.replyDate}>{formatDate(reply.created_at)}</span>
-                                </div>
+                                {user?.username === reply.user?.username && (
+                                  <button 
+                                    className={styles.deleteReplyBtn}
+                                    onClick={() => handleDeleteReply(reply.id)}
+                                  >
+                                    🗑️
+                                  </button>
+                                )}
                               </div>
-                              {user?.username === reply.user?.username && (
-                                <button 
-                                  className={styles.deleteReplyBtn}
-                                  onClick={() => handleDeleteReply(reply.id)}
-                                >
-                                  🗑️
-                                </button>
-                              )}
+                              <p className={styles.replyComment}>{reply.comment}</p>
                             </div>
-                            <p className={styles.replyComment}>{reply.comment}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+
+              {hasNext && (
+                <div className={styles.loadMoreWrapper}>
+                  {loadingMore ? (
+                    <div className={styles.loadingMore}>Loading more reviews...</div>
+                  ) : (
+                    <button className={styles.loadMoreBtn} onClick={() => fetchReviews(page + 1, true)}>
+                      Load more reviews
+                    </button>
+                  )}
+                  <div ref={loadMoreRef} style={{ height: 1 }} aria-hidden />
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
