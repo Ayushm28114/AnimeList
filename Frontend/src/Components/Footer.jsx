@@ -33,10 +33,10 @@ const Footer = () => {
         {/* Categories */}
         <div className="footer-section">
           <h4>Top Genres</h4>
-          <p>Action & Adventure</p>
-          <p>Romance & Drama</p>
-          <p>Comedy & Slice of Life</p>
-          <p>Fantasy & Isekai</p>
+          <Link to={`/search?q=${encodeURIComponent('Action Adventure')}`}>Action & Adventure</Link>
+          <Link to={`/search?q=${encodeURIComponent('Romance Drama')}`}>Romance & Drama</Link>
+          <Link to={`/search?q=${encodeURIComponent('Comedy Slice of Life')}`}>Comedy & Slice of Life</Link>
+          <Link to={`/search?q=${encodeURIComponent('Fantasy Isekai')}`}>Fantasy & Isekai</Link>
         </div>
 
         {/* Contact Info */}
