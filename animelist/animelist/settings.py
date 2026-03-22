@@ -30,7 +30,10 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", ".onrender.com").split(",")
+ALLOWED_HOSTS = [
+    ".onrender.com",
+    "animelist-g1eo.onrender.com"
+]
 
 # Application definition
 
