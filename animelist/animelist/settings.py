@@ -28,11 +28,13 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    ".onrender.com",
-    "animelist-g1eo.onrender.com"
+    'animelist-g1eo.onrender.com', 
+    'localhost', 
+    '127.0.0.1',
+    '.onrender.com'  # This covers all onrender subdomains
 ]
 
 # Application definition
@@ -162,3 +164,8 @@ CORS_ALLOWED_ORIGINS = [
 
 # Set to False in production for security
 CORS_ALLOW_ALL_ORIGINS = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://animeverse-ochre.vercel.app",
+    "https://animelist-g1eo.onrender.com"
+]
