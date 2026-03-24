@@ -17,8 +17,7 @@ export default function ProfilePage() {
   const [stats, setStats] = useState({
     totalAnime: 0,
     reviews: 0,
-    watchlist: 0,
-    favorites: 0
+    watchlist: 0
   });
 
   // Modal States
@@ -77,8 +76,7 @@ export default function ProfilePage() {
       setStats({
         totalAnime: watchlistData.filter(w => w.status === "C").length,
         reviews: userReviews.length,
-        watchlist: watchlistData.length,
-        favorites: watchlistData.filter(w => w.is_favorite).length || 0
+        watchlist: watchlistData.length
       });
     } catch (error) {
       // Log error for debugging
@@ -139,7 +137,6 @@ export default function ProfilePage() {
   // Filter watchlist by status
   const getFilteredWatchlist = () => {
     if (activeTab === "all") return watchlist;
-    if (activeTab === "favorites") return watchlist.filter(item => item.is_favorite);
     const statusMap = {
       watching: "W",
       completed: "C",
@@ -153,7 +150,6 @@ export default function ProfilePage() {
   // Get watchlist counts
   const getStatusCount = (status) => {
     if (status === "all") return watchlist.length;
-    if (status === "favorites") return watchlist.filter(item => item.is_favorite).length;
     const statusMap = {
       watching: "W",
       completed: "C",
@@ -503,10 +499,6 @@ export default function ProfilePage() {
             <div className={styles.statValue}>{stats.reviews}</div>
             <div className={styles.statLabel}>Reviews</div>
           </div>
-          <div className={styles.statCard}>
-            <div className={styles.statValue}>{stats.favorites}</div>
-            <div className={styles.statLabel}>Favorites</div>
-          </div>
         </div>
       </div>
 
@@ -527,14 +519,13 @@ export default function ProfilePage() {
             <div className={styles.sectionContent}>
               {/* Tabs */}
               <div className={styles.watchlistTabs}>
-                {["all", "favorites", "watching", "completed", "planToWatch", "onHold", "dropped"].map(tab => (
+                {["all", "watching", "completed", "planToWatch", "onHold", "dropped"].map(tab => (
                   <button
                     key={tab}
                     className={`${styles.tabBtn} ${activeTab === tab ? styles.active : ""}`}
                     onClick={() => setActiveTab(tab)}
                   >
                     {tab === "all" ? "All" : 
-                     tab === "favorites" ? "❤️ Favorites" :
                      tab === "watching" ? "Watching" :
                      tab === "completed" ? "Completed" :
                      tab === "planToWatch" ? "Plan to Watch" :
@@ -593,8 +584,6 @@ export default function ProfilePage() {
                   <p className={styles.emptyText}>
                     {activeTab === "all" 
                       ? "Your watchlist is empty. Start exploring anime!"
-                      : activeTab === "favorites" 
-                      ? "No favorites yet. Click the heart icon on any anime to add it!"
                       : `No anime in "${activeTab}" category.`}
                   </p>
                   <Link to="/" className={styles.emptyAction}>

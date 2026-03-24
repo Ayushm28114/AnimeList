@@ -49,6 +49,12 @@ export default function HomePage() {
     navigate(`/search?q=${encodeURIComponent(category)}`);
   };
 
+  // When user focuses the hero search input on the home page, redirect them to the search page so they can type there.
+  const handleFocusSearch = () => {
+    const q = inputValue.trim();
+    navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
+  };
+
   return (
     <div className={styles.pageContainer}>
       {/* ============ HERO SECTION ============ */}
@@ -83,6 +89,7 @@ export default function HomePage() {
                 placeholder="Search for anime... (e.g., Naruto, One Piece)"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
+                onFocus={handleFocusSearch}
               />
               <button 
                 type="submit" 
