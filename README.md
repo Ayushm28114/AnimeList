@@ -2,6 +2,8 @@
 
 > **Full-Stack Anime Catalog & Review Platform**
 
+Live link for AnimeVerse :- https://animeverse-ochre.vercel.app
+
 AnimeList is a full-stack web application that allows users to explore anime, browse detailed information, create personalized watchlists, write reviews, and manage their profile. It integrates the [Jikan API](https://jikan.moe/) (Unofficial MyAnimeList API) to fetch real-time anime data and uses a modern full-stack architecture built with **React**, **Django REST Framework**, and **PostgreSQL**.
 
 ---
