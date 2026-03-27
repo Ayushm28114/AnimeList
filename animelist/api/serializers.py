@@ -85,3 +85,5 @@ class SharedWatchlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Watchlist
         fields = ['anime_id', 'anime_title', 'anime_image', 'status', 'is_favorite', 'added_at']
+
+        fields=['anime_id', 'anime_field_projection',]
